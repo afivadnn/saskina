@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>Kejutan Ulang Tahun</title>
+
+<!-- Tailwind via CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bgdark: '#241D18',
+          carddark: '#332A23',
+          cream: '#F3E8D8',
+          rose: '#D6A6A0',
+          sage: '#A9B99A',
+          gold: '#C9A66B'
+        },
+        fontFamily: {
+          display: ['"Cormorant Garamond"', 'serif'],
+          body: ['"Nunito"', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito:wght@400;600;700&family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="bg-bgdark text-cream font-body min-h-screen overflow-x-hidden">
+
+  <!-- ========== 1. LOADING SCREEN ========== -->
+  <section id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bgdark">
+    <div class="flower-loader">
+      <span class="petal"></span>
+      <span class="petal"></span>
+      <span class="petal"></span>
+      <span class="petal"></span>
+      <span class="petal"></span>
+      <span class="petal"></span>
+      <span class="flower-center"></span>
+    </div>
+    <p class="mt-8 font-display italic text-lg sm:text-xl text-cream/80 tracking-wide fade-text">
+      Menyiapkan kejutan spesial untukmu...
+    </p>
+  </section>
+
+  <!-- ========== 2. HALAMAN PASSWORD ========== -->
+  <section id="password-page" class="hidden-section fixed inset-0 z-40 flex items-center justify-center px-6">
+    <div class="w-full max-w-sm bg-carddark border border-gold/30 rounded-3xl shadow-2xl px-7 py-10 sm:px-10 sm:py-12 text-center" id="password-card">
+      <div class="mx-auto mb-5 w-12 h-12 flex items-center justify-center">
+        <svg viewBox="0 0 48 48" class="w-10 h-10 text-rose" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M24 4c-8 6-8 14 0 20 8-6 8-14 0-20Z" fill="currentColor" opacity="0.25"/>
+          <path d="M24 24v20" stroke-linecap="round"/>
+          <path d="M24 24c-6-4-14-2-16 4 6 4 12 2 16-4Z" fill="currentColor" opacity="0.35"/>
+          <path d="M24 24c6-4 14-2 16 4-6 4-12 2-16-4Z" fill="currentColor" opacity="0.35"/>
+        </svg>
+      </div>
+
+      <h1 class="font-display text-2xl sm:text-3xl font-semibold text-cream mb-2">Ada Sesuatu di Sini</h1>
+      <p class="text-sm text-cream/60 mb-8">Masukkan kata kunci untuk membuka kejutannya</p>
+
+      <form id="password-form" class="pin-container" autocomplete="off">
+        <!-- Indikator PIN -->
+        <div class="pin-display" dir="ltr">
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+        </div>
+
+        <!-- Numpad Kustom -->
+        <div class="numpad-grid">
+          <button type="button" class="numpad-btn" data-val="1">1</button>
+          <button type="button" class="numpad-btn" data-val="2">2</button>
+          <button type="button" class="numpad-btn" data-val="3">3</button>
+          <button type="button" class="numpad-btn" data-val="4">4</button>
+          <button type="button" class="numpad-btn" data-val="5">5</button>
+          <button type="button" class="numpad-btn" data-val="6">6</button>
+          <button type="button" class="numpad-btn" data-val="7">7</button>
+          <button type="button" class="numpad-btn" data-val="8">8</button>
+          <button type="button" class="numpad-btn" data-val="9">9</button>
+          <div class="numpad-cell-empty" aria-hidden="true"></div>
+          <button type="button" class="numpad-btn" data-val="0">0</button>
+          <button type="button" class="numpad-btn action-btn" id="btn-backspace" aria-label="Hapus angka">
+            <!-- Ikon Backspace sederhana -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+              <line x1="18" y1="9" x2="12" y2="15"></line>
+              <line x1="12" y1="9" x2="18" y2="15"></line>
+            </svg>
+          </button>
+        </div>
+
+        <button type="submit" class="pin-submit-btn">
+          Buka
+        </button>
+      </form>
+
+      <p id="password-error" class="mt-4 text-sm text-rose/80 opacity-0 transition-opacity duration-200">
+        Kata kunci belum tepat, coba lagi ya.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== 3. HALAMAN UTAMA (MAIN MENU) ========== -->
+  <section id="main-page" class="hidden-section fixed inset-0 z-30 flex items-center justify-center px-6">
+    <div class="w-full max-w-md bg-carddark border border-gold/30 rounded-3xl shadow-2xl px-6 py-10 sm:px-10 sm:py-12 text-center">
+      <p class="uppercase tracking-[0.3em] text-xs text-sage/70 mb-2">Selamat Datang</p>
+      <h1 class="font-display text-3xl sm:text-4xl font-semibold text-cream mb-1">Untukmu, Hari Ini</h1>
+      <div class="w-16 h-px bg-gold/40 mx-auto my-6"></div>
+
+      <div class="grid grid-cols-3 gap-3 sm:gap-5">
+
+        <button data-menu="kalender" class="menu-icon group">
+          <span class="menu-icon-circle">
+            <svg viewBox="0 0 24 24" class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="3.5" y="5" width="17" height="15" rx="2.5"/>
+              <path d="M3.5 9.5h17" stroke-linecap="round"/>
+              <path d="M8 3v3M16 3v3" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="menu-label">Kalender</span>
+        </button>
+
+        <button data-menu="galeri" class="menu-icon group">
+          <span class="menu-icon-circle">
+            <svg viewBox="0 0 24 24" class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/>
+              <circle cx="9" cy="10" r="1.8"/>
+              <path d="M4 17l5-5 4 4 3-3 4 4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="menu-label">Galeri</span>
+        </button>
+
+        <button data-menu="pesan" class="menu-icon group">
+          <span class="menu-icon-circle">
+            <svg viewBox="0 0 24 24" class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M4 6.5h16v10.5a1 1 0 0 1-1 1H8l-4 3.5V6.5Z" stroke-linejoin="round"/>
+              <path d="M7.5 10.5h9M7.5 13.5h6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="menu-label">Pesan</span>
+        </button>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 4. SECTION CAKE (KALENDER: KUE & WISHES) ========== -->
+  <section id="section-cake" class="hidden-section fixed inset-0 z-40 flex flex-col items-center justify-center px-6 cake-stage-bg overflow-hidden">
+
+    <!-- Overlay gelap saat hold (dikontrol JS via --dim-opacity) -->
+    <div id="cake-dim-overlay"></div>
+
+    <button id="back-to-menu-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
+      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Kembali</span>
+    </button>
+
+    <!-- Lapisan kelopak bunga full-screen (dipakai ulang untuk efek wish) -->
+    <div id="petals-layer" class="petals-layer" aria-hidden="true"></div>
+
+    <!-- Panggung kue + lilin (jadi target tekan-tahan) -->
+    <div class="cake-stage" id="hold-target">
+      <img id="cake-img" src="kue.png" alt="Kue ulang tahun" class="cake-image" />
+      <div id="cake-fallback" class="cake-fallback hidden-section" aria-hidden="true">🎂</div>
+
+      <div class="candle-wrap">
+        <div id="candle-flame" class="candle-flame"></div>
+        <svg id="hold-ring" class="hold-ring" viewBox="0 0 64 64" aria-hidden="true">
+          <circle class="hold-ring-track" cx="32" cy="32" r="27" />
+          <circle id="hold-ring-progress" class="hold-ring-progress" cx="32" cy="32" r="27" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Prompt tekan & tahan / status gagal -->
+    <p id="hold-hint" class="hold-hint hidden-section">👆 Tekan &amp; tahan lilinnya sampai padam</p>
+
+  </section>
+
+  <!-- ========== 4b. SECTION BLOWN (TEKS SETELAH LILIN PADAM) ========== -->
+  <section id="section-blown" class="hidden-section fixed inset-0 z-40 flex flex-col items-center justify-center blown-bg">
+    <p id="blown-text-screen" class="blown-text-screen">Yeyyy apinya padam! 🎉</p>
+  </section>
+
+  <!-- ========== 4c. SECTION WISH (PILIH PERMOHONAN) ========== -->
+  <section id="section-wish" class="hidden-section fixed inset-0 z-40 wish-bg overflow-y-auto" style="position:relative">
+
+    <button id="wish-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
+      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Kembali</span>
+    </button>
+
+    <div class="wish-page-inner">
+      <p class="wishes-eyebrow">Satu Permohonan</p>
+      <h2 class="wishes-heading">Sekarang... pilih satu wish untuk tahun barumu.</h2>
+      <div id="wishes-container" class="wish-tag-grid"></div>
+    </div>
+
+    <!-- Popup konfirmasi setelah wish dipilih -->
+    <div id="wish-popup" class="wish-popup hidden-section">
+      <p class="wish-popup-text">Wish diterima. Semoga pelan-pelan jadi nyata.</p>
+    </div>
+  </section>
+
+  <!-- ========== 5. SECTION GALLERY (GALERI LOVE) ========== -->
+  <section id="section-gallery" class="hidden-section fixed inset-0 z-40 gallery-bg overflow-hidden">
+
+    <button id="gallery-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
+      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Kembali</span>
+    </button>
+
+    <!-- Arena absolut tempat foto-foto bergerak membentuk hati -->
+    <div id="gallery-heart-arena" class="gallery-heart-arena" aria-label="Galeri foto berbentuk hati"></div>
+
+    <!-- Tipografi di bawah formasi hati -->
+    <div id="gallery-caption" class="gallery-caption hidden-section">
+      <p class="gallery-caption-eyebrow">Happy Birthday</p>
+      <h2 class="gallery-caption-heading">Kamu.</h2>
+      <p class="gallery-caption-sub">Hari ini kamu wajib dirayakan.</p>
+    </div>
+
+    <!-- Tombol ke Fase 4 (Pesan) -->
+    <button id="gallery-letter-btn" class="gallery-letter-btn hidden-section" type="button">
+      Ada satu surat buat kamu
+      <svg viewBox="0 0 20 20" class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 10h12M11 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+  </section>
+
+  <!-- ========== LIGHTBOX ========== -->
+  <div id="lightbox" class="lightbox hidden-section" role="dialog" aria-modal="true" aria-label="Tampilan foto besar">
+    <button id="lightbox-close" class="lightbox-close" type="button" aria-label="Tutup">
+      <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="lightbox-backdrop" id="lightbox-backdrop"></div>
+    <img id="lightbox-img" class="lightbox-img" src="" alt="Foto diperbesar" />
+  </div>
+
+  <!-- ========== 6. SECTION MESSAGE (SURAT & PENUTUP) ========== -->
+  <section id="section-message" class="hidden-section fixed inset-0 z-40 msg-bg overflow-y-auto">
+
+    <button id="msg-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
+      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Kembali</span>
+    </button>
+
+    <div class="msg-wrapper">
+
+      <!-- Eyebrow label -->
+      <p class="msg-eyebrow">Surat Kecil</p>
+
+      <!-- Kertas surat vintage -->
+      <article class="letter-paper" aria-label="Isi surat">
+        <p class="letter-line">Hari ini mungkin cuma satu tanggal di kalender, tapi buat orang-orang yang sayang sama kamu, hari ini tetap punya arti.</p>
+
+        <p class="letter-line">Kamu tumbuh jadi versi dirimu yang lebih kuat dari yang kamu sadari. Tiap kali kamu memilih untuk terus maju meskipun berat, itu bukan hal kecil — itu luar biasa.</p>
+
+        <p class="letter-line">Semoga tahun ini kamu lebih sering ketawa, lebih jarang merasa sendirian, dan lebih banyak ketemu hal-hal baik yang selama ini kamu tunggu.</p>
+
+        <p class="letter-line">Semoga kamu selalu punya alasan untuk tersenyum, bahkan di hari-hari yang terasa biasa saja. Dan kalau nggak ada alasannya — semoga kamu ingat bahwa kehadiranmu sendiri sudah cukup jadi alasannya.</p>
+
+        <p class="letter-line">Terima kasih sudah tetap jadi kamu.</p>
+
+        <p class="letter-sign">— Aku</p>
+      </article>
+
+      <!-- Kartu penutup dark -->
+      <div class="closing-card">
+        <p class="closing-card-eyebrow">Untuk Kamu</p>
+        <h2 class="closing-card-heading">Happy Birthday, Kamu</h2>
+        <p class="closing-card-from">dari Aku</p>
+        <div class="closing-card-divider"></div>
+        <p class="closing-card-body">Semoga wish yang kamu pilih tadi benar-benar menemukan jalannya tahun ini.</p>
+        <!-- Dekorasi sudut -->
+        <span class="closing-card-deco closing-card-deco--tl" aria-hidden="true"></span>
+        <span class="closing-card-deco closing-card-deco--br" aria-hidden="true"></span>
+      </div>
+
+      <!-- Tombol buka bunga -->
+      <button id="open-flower-btn" class="open-flower-btn" type="button">
+        Buka bunga penutup 🌷
+      </button>
+
+      <!-- Tombol ulangi dari awal -->
+      <button id="restart-btn" class="restart-btn" type="button">
+        Ulangi dari Awal
+      </button>
+
+    </div>
+  </section>
+
+  <!-- ========== 7. MODAL BUKET BUNGA ========== -->
+  <div id="flower-modal" class="flower-modal hidden-section" role="dialog" aria-modal="true" aria-label="Buket bunga penutup">
+    <div class="flower-modal-backdrop" id="flower-modal-backdrop"></div>
+
+    <div class="flower-modal-content">
+      <!-- Buket bunga (placeholder — ganti src dengan gambar buket nyata) -->
+      <div class="flower-bouquet-wrap">
+        <img
+          id="flower-img"
+          src="buket.png"
+          alt="Buket bunga"
+          class="flower-bouquet-img"
+          onerror="this.style.display='none';document.getElementById('flower-emoji').style.display='block'"
+        />
+        <div id="flower-emoji" class="flower-bouquet-emoji" style="display:none" aria-hidden="true">💐</div>
+      </div>
+
+      <!-- Card deskripsi bunga -->
+      <div class="flower-info-card">
+        <p class="flower-info-eyebrow">Persahabatan</p>
+        <h3 class="flower-info-heading">Sunshine Friend untuk Kamu</h3>
+        <p class="flower-info-desc">Bunga kecil penutup buat yang ulang tahun hari ini.</p>
+
+        <div class="flower-tags">
+          <span class="flower-tag"><strong>Sunflower</strong> · Loyalty</span>
+          <span class="flower-tag"><strong>Yellow rose</strong> · Friendship</span>
+          <span class="flower-tag"><strong>White daisy</strong> · Loyal love</span>
+        </div>
+
+        <p class="flower-tap-hint">Ketuk buketnya pelan-pelan ♡</p>
+      </div>
+
+      <!-- Tombol kembali ke surat / ulangi -->
+      <div class="flower-modal-actions">
+        <button id="flower-back-btn" class="flower-back-btn" type="button">
+          Kembali ke surat
+        </button>
+        <button id="flower-restart-btn" class="flower-restart-btn" type="button">
+          Ulangi dari Awal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay transisi antar scene (hitam fade in/out) -->
+  <div id="scene-transition"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
