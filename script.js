@@ -199,10 +199,16 @@ const cakeImg          = document.getElementById('cake-img');
 const cakeFallback     = document.getElementById('cake-fallback');
 const holdTarget       = document.getElementById('hold-target');
 const candleFlame      = document.getElementById('candle-flame');
+const candleStick      = document.getElementById('candle-stick');
+const matchStick       = document.getElementById('match-stick');
 const holdRingProgress = document.getElementById('hold-ring-progress');
 const holdHint         = document.getElementById('hold-hint');
 const petalsLayer      = document.getElementById('petals-layer');
 const backToMenuBtn    = document.getElementById('back-to-menu-btn');
+
+// Cegah menu konteks (long-press) muncul di atas panggung kue pada browser
+// yang masih memunculkannya walau pointer-events gambar sudah dimatikan.
+holdTarget.addEventListener('contextmenu', (e) => e.preventDefault());
 
 // Section blown & wish terpisah
 const blownSection     = document.getElementById('section-blown');
@@ -229,8 +235,25 @@ cakeImg.addEventListener('error', () => {
 });
 
 // ---- Ignite otomatis (menggantikan tombol "Nyalakan Lilin") ----
+// Urutan barunya: korek muncul & "menyentuh" sumbu -> batang lilin muncul -> api menyala.
 function startIgniteSequence() {
-  igniteTimer = setTimeout(igniteCandle, IGNITE_DELAY_MS);
+  igniteTimer = setTimeout(startMatchStrike, IGNITE_DELAY_MS);
+}
+
+function startMatchStrike() {
+  if (matchStick) {
+    matchStick.classList.remove('striking');
+    void matchStick.offsetWidth; // reflow supaya animasi bisa retrigger
+    matchStick.classList.add('striking');
+  }
+
+  // Batang lilin muncul tepat saat korek "menyentuh" sumbu (~55% dari animasi 650ms)
+  igniteTimer = setTimeout(() => {
+    if (candleStick) candleStick.classList.add('visible');
+  }, 340);
+
+  // Api menyala sesaat setelah batang lilin muncul, korek mulai menjauh
+  igniteTimer = setTimeout(igniteCandle, 420);
 }
 
 function igniteCandle() {
@@ -727,6 +750,8 @@ function resetCakeSection() {
 
   cakeSection.classList.remove('lit');
   candleFlame.classList.remove('visible', 'blowing', 'extinguishing');
+  if (candleStick) candleStick.classList.remove('visible');
+  if (matchStick) matchStick.classList.remove('striking');
   setRingProgress(0);
 
   // Reset efek hold
@@ -1167,6 +1192,64 @@ function triggerMessageSectionSequence() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       msgSection.classList.add('section-message-active');
+    });
+  });
+}
+
+// ============================================================
+// ALAT BANTU KALIBRASI POSISI LILIN (dev tool, tidak aktif untuk pengunjung biasa)
+// ============================================================
+// Kenapa ada ini: posisi lilin (--candle-base) dihitung sebagai persentase
+// dari tinggi kue.png. Angka yang pas beda-beda tergantung proporsi gambar
+// kue masing-masing orang, jadi tidak bisa ditebak dari luar tanpa melihat
+// gambar aslinya secara langsung.
+//
+// Cara pakai: buka halaman dengan ?calibrate=1 di belakang URL
+// (contoh: index.html?calibrate=1). Halaman akan langsung loncat ke
+// section kue & menyalakan lilin. Pakai tombol panah ATAS/BAWAH untuk
+// menggeser lilin sampai pas duduk di permukaan kue. Angka akhirnya
+// muncul di layar — salin angka itu ke variabel --candle-base di
+// style.css (cari komentar "SATU ANGKA INI" di bagian .cake-stage),
+// lalu hapus ?calibrate=1 dari URL untuk kembali ke alur normal.
+if (new URLSearchParams(window.location.search).get('calibrate') === '1') {
+  window.addEventListener('DOMContentLoaded', () => {
+    const stage = document.querySelector('.cake-stage');
+    const cakeSectionEl = document.getElementById('section-cake');
+    const loadingEl = document.getElementById('loading-screen');
+    const passwordEl = document.getElementById('password-page');
+
+    // Loncat langsung ke section kue, lewati loading & password
+    loadingEl.classList.add('hidden-section');
+    passwordEl.classList.add('hidden-section');
+    cakeSectionEl.classList.remove('hidden-section');
+    cakeSectionEl.classList.add('lit');
+
+    // Nyalakan lilin langsung tanpa animasi korek, biar cepat kelihatan
+    const stick = document.getElementById('candle-stick');
+    const flame = document.getElementById('candle-flame');
+    if (stick) stick.classList.add('visible');
+    if (flame) flame.classList.add('visible');
+
+    let base = parseFloat(getComputedStyle(stage).getPropertyValue('--candle-base')) || 34;
+
+    const readout = document.createElement('div');
+    readout.style.cssText = `
+      position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+      z-index: 999; background: #000; color: #fff; padding: 8px 16px;
+      border-radius: 10px; font: 14px/1.4 monospace; text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5); pointer-events: none;
+    `;
+    document.body.appendChild(readout);
+
+    function updateReadout() {
+      stage.style.setProperty('--candle-base', base.toFixed(1) + '%');
+      readout.innerHTML = `--candle-base: <strong>${base.toFixed(1)}%</strong><br><span style="opacity:.7">↑/↓ geser · salin angka ini ke style.css</span>`;
+    }
+    updateReadout();
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp')   { base = Math.min(base + 0.5, 100); updateReadout(); }
+      if (e.key === 'ArrowDown') { base = Math.max(base - 0.5, 0);   updateReadout(); }
     });
   });
 }

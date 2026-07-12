@@ -468,19 +468,62 @@ button {
 .cake-stage {
   position: relative;
   width: min(70vw, 220px);
-  aspect-ratio: 1 / 1;
+  /* PENTING: aspect-ratio:1/1 sengaja dihapus. Kalau kue.png kamu bukan
+     persegi (kebanyakan gambar kue memang tidak persegi), memaksa kotak 1:1
+     di sini membuat object-fit:contain menyisakan ruang kosong di atas/bawah
+     gambar — itu penyebab utama lilin terlihat "mengambang" jauh dari kue,
+     karena --candle-base dihitung dari tinggi KOTAK, bukan tinggi gambar
+     yang sebenarnya. Sekarang tinggi panggung mengikuti rasio asli gambar
+     (lihat height:auto di .cake-image), jadi tidak ada ruang kosong sama sekali. */
+  min-height: 160px; /* jaga-jaga saat kue.png gagal dimuat & fallback emoji tampil */
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 2rem;
+  /* ==========================================================
+     SATU ANGKA INI yang menentukan tinggi lilin di atas kue.
+     Diukur dari DASAR gambar kue (0% = paling bawah, 100% = paling atas).
+     Kalau lilin belum pas duduk di permukaan kue kamu, naikkan/turunkan
+     angka ini sampai pas — semua elemen lilin (batang, api, korek) ikut
+     bergerak bersama. Buka halaman dengan ?calibrate=1 di URL untuk alat
+     bantu geser-lihat-langsung (lihat akhir script.js).
+     ========================================================== */
+  --candle-base: 99.00%;
 }
 
 .cake-image {
   width: 100%;
-  height: 100%;
+  height: auto; /* ikuti rasio asli gambar — tidak ada lagi letterboxing */
+  display: block;
   object-fit: contain;
   filter: brightness(0.55);
   transition: filter 1.4s ease;
+  /* Cegah menu "simpan gambar" muncul saat tekan-tahan di mobile —
+     event pointer tetap diteruskan ke .cake-stage lewat pointer-events:none,
+     jadi gesture tekan-tahan-lilin tetap berfungsi normal. */
+  pointer-events: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* Lapisan tak terlihat DI ATAS gambar kue — semua sentuhan mendarat di sini,
+   bukan di elemen <img>. Ini yang benar-benar menghilangkan opsi "simpan
+   gambar" saat tekan-tahan di HP, karena OS tidak pernah menganggap jari
+   kamu menyentuh sebuah gambar sama sekali. pointer-events:none di atas
+   sudah membantu, tapi shield ini jadi lapisan pertahanan kedua yang pasti
+   bekerja di semua browser (termasuk Android Chrome versi lama). */
+.cake-image-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
+  pointer-events: auto;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .cake-stage-bg.lit .cake-image {
@@ -492,6 +535,10 @@ button {
   line-height: 1;
   filter: brightness(0.55);
   transition: filter 1.4s ease;
+  pointer-events: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .cake-stage-bg.lit .cake-fallback {
@@ -591,9 +638,77 @@ button {
   100% { transform: translateX(calc(-50% + var(--dx, 18px) * 2)) translateY(-65px) scale(2); opacity: 0; }
 }
 
+/* Batang lilin — bergaris, muncul (fade + pop) tepat saat korek menyentuhnya.
+   Posisinya mengikuti --candle-base yang didefinisikan di .cake-stage. */
+.candle-stick {
+  position: absolute;
+  bottom: var(--candle-base, 34%);
+  left: 50%;
+  width: 9px;
+  height: 30px;
+  transform: translateX(-50%) scale(0.8);
+  transform-origin: bottom center;
+  border-radius: 3px 3px 1px 1px;
+  background: repeating-linear-gradient(
+    180deg,
+    #F3E8D8 0px, #F3E8D8 6px,
+    #D6A6A0 6px, #D6A6A0 12px
+  );
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  z-index: 1;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.candle-stick.visible {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Korek api — muncul sesaat dari sudut kanan-atas, menyentuh sumbu lilin,
+   lalu memudar sebelum lilin benar-benar menyala. */
+.match-stick {
+  position: absolute;
+  bottom: calc(var(--candle-base, 34%) + 22px);
+  left: 50%;
+  width: 5px;
+  height: 32px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #E8D3A8 0%, #C9A66B 100%);
+  transform-origin: bottom center;
+  transform: translate(34px, -44px) rotate(38deg);
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.match-tip {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 11px;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle at 38% 30%, #FF7A4D 0%, #C23B1E 60%, #6B1E0E 100%);
+  box-shadow: 0 0 6px 1px rgba(255, 122, 77, 0.5);
+}
+
+.match-stick.striking {
+  animation: matchStrike 0.65s cubic-bezier(0.4, 0.1, 0.4, 1) forwards;
+}
+
+@keyframes matchStrike {
+  0%   { opacity: 0; transform: translate(34px, -44px) rotate(38deg); }
+  18%  { opacity: 1; }
+  55%  { opacity: 1; transform: translate(0px, 2px) rotate(12deg); }
+  78%  { opacity: 1; transform: translate(-2px, 3px) rotate(8deg); }
+  100% { opacity: 0; transform: translate(-3px, 1px) rotate(5deg); }
+}
+
 .candle-wrap {
   position: absolute;
-  top: 6%;
+  bottom: calc(var(--candle-base, 34%) + 6px);
   left: 50%;
   transform: translateX(-50%);
   width: 64px;
@@ -787,7 +902,10 @@ button {
   border: 1px solid rgba(214, 166, 160, 0.5);
   border-radius: 9999px;
   padding: 0.75rem 1.5rem;
-  white-space: nowrap;
+  /* white-space:nowrap dihapus — itu penyebab toast melebar sampai keluar
+     layar di HP sempit, karena teksnya dipaksa tetap satu baris. */
+  white-space: normal;
+  max-width: min(85vw, 320px);
 }
 
 /* Lapisan kelopak bunga — full screen, dipakai lagi begitu wish dipilih */
@@ -1344,8 +1462,8 @@ button {
     42% 5%, 46% 8%, 50% 9%, 54% 8%, 58% 5%, 62% 0%,
     100% 0%, 100% 100%, 0% 100%
   );
-  padding: 2.25rem 1rem 1.25rem;
-  min-height: 140px;
+  padding: 2.25rem 1rem 2.75rem;
+  min-height: 156px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -1397,12 +1515,12 @@ button {
 /* Hiasan bunga cherry blossom di pojok bawah kiri — pure CSS */
 .wish-tag-flower {
   position: absolute;
-  bottom: 6px;
-  left: 6px;
-  width: 44px;
-  height: 44px;
+  bottom: 10px;
+  left: 10px;
+  width: 38px;
+  height: 38px;
   pointer-events: none;
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
 /* Kelopak bunga (5 buah) */
@@ -1493,13 +1611,16 @@ button {
 }
 
 #section-wish .wish-popup-text {
-  font-size: 1.05rem;
+  font-size: clamp(0.92rem, 3.8vw, 1.05rem);
   color: #F3E8D8;
   text-align: center;
   background: rgba(36, 29, 24, 0.85);
   border: 1px solid rgba(214, 166, 160, 0.6);
-  border-radius: 9999px;
-  padding: 1rem 2rem;
+  border-radius: 24px;
+  padding: 0.9rem 1.5rem;
+  white-space: normal;
+  width: max-content;
+  max-width: min(80vw, 300px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(214, 166, 160, 0.2);
   /* Animasi scale-bounce */
   animation: popupBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;

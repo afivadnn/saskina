@@ -175,8 +175,17 @@
 
     <!-- Panggung kue + lilin (jadi target tekan-tahan) -->
     <div class="cake-stage" id="hold-target">
-      <img id="cake-img" src="kue.png" alt="Kue ulang tahun" class="cake-image" />
+      <img id="cake-img" src="kue.png" alt="Kue ulang tahun" class="cake-image" draggable="false" />
+      <div class="cake-image-shield" aria-hidden="true"></div>
       <div id="cake-fallback" class="cake-fallback hidden-section" aria-hidden="true">🎂</div>
+
+      <!-- Batang lilin fisik — muncul tepat saat korek menyalakannya (lihat script.js) -->
+      <div class="candle-stick" id="candle-stick" aria-hidden="true"></div>
+
+      <!-- Korek api — muncul sesaat untuk menyalakan lilin, lalu menghilang -->
+      <div class="match-stick" id="match-stick" aria-hidden="true">
+        <span class="match-tip"></span>
+      </div>
 
       <div class="candle-wrap">
         <div id="candle-flame" class="candle-flame"></div>
