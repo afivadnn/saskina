@@ -5,8 +5,29 @@
   box-sizing: border-box;
 }
 
-body {
-  -webkit-tap-highlight-color: transparent;
+/* ==========================================================
+   PERBAIKAN GLOBAL RESPONSIVE
+   ========================================================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden; /* Mencegah horizontal scroll yang memotong layar */
+  background-color: #0E0A08; /* Fallback warna paling gelap */
+}
+
+/* Memastikan setiap section tampil penuh tanpa elemen yang terpotong */
+section {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem) 1rem;
+  box-sizing: border-box;
+  position: relative;
 }
 
 /* Sembunyikan sesi non-aktif tanpa flash of unstyled content.
@@ -322,6 +343,8 @@ button {
     0 16px 48px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(201, 166, 107, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, #3a1f2a 0%, #1a0d14 50%, #0E0A08 100%);
+  background-attachment: fixed;
 }
 
 .menu-icon {
@@ -420,9 +443,26 @@ button {
    4. SECTION CAKE — STAGE, LILIN, WISHES
    ========================================================== */
 .cake-stage-bg {
-  background-color: rgba(8, 6, 5, 0.97);
-  transition: background-color 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+  background: linear-gradient(180deg, #3a1f2a 0%, #1a0d14 40%, #0E0A08 100%);
+  transition: background 1.4s cubic-bezier(0.65, 0, 0.35, 1);
   position: relative;
+  /* Beri ruang ekstra di atas agar hiasan tidak menutupi kue atau teks */
+  padding-top: clamp(6rem, 15vw, 9rem) !important;
+}
+
+.cake-top-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: clamp(80px, 20vw, 150px);
+  /* Gunakan SVG/Image pattern hiasan Anda di sini */
+  background-image: url('path/to/your/top-decoration-from-screenshot.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+  z-index: 10;
+  pointer-events: none; /* Agar tidak menghalangi klik */
 }
 
 /* State "terang" — dipicu class .lit di #section-cake, tetap dalam
@@ -467,28 +507,13 @@ button {
 
 .cake-stage {
   position: relative;
-  width: min(70vw, 220px);
-  /* PENTING: aspect-ratio:1/1 sengaja dihapus. Kalau kue.png kamu bukan
-     persegi (kebanyakan gambar kue memang tidak persegi), memaksa kotak 1:1
-     di sini membuat object-fit:contain menyisakan ruang kosong di atas/bawah
-     gambar — itu penyebab utama lilin terlihat "mengambang" jauh dari kue,
-     karena --candle-base dihitung dari tinggi KOTAK, bukan tinggi gambar
-     yang sebenarnya. Sekarang tinggi panggung mengikuti rasio asli gambar
-     (lihat height:auto di .cake-image), jadi tidak ada ruang kosong sama sekali. */
-  min-height: 160px; /* jaga-jaga saat kue.png gagal dimuat & fallback emoji tampil */
+  width: min(85vw, 300px); /* Diperbesar dari 70vw/220px agar tidak terlalu sempit */
+  min-height: 200px; 
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
-  /* ==========================================================
-     SATU ANGKA INI yang menentukan tinggi lilin di atas kue.
-     Diukur dari DASAR gambar kue (0% = paling bawah, 100% = paling atas).
-     Kalau lilin belum pas duduk di permukaan kue kamu, naikkan/turunkan
-     angka ini sampai pas — semua elemen lilin (batang, api, korek) ikut
-     bergerak bersama. Buka halaman dengan ?calibrate=1 di URL untuk alat
-     bantu geser-lihat-langsung (lihat akhir script.js).
-     ========================================================== */
-  --candle-base: 99.00%;
+  margin: 0 auto 3rem auto;
+  --candle-base: 99.0%; /* Penyesuaian presisi posisi sumbu lilin */
 }
 
 .cake-image {
@@ -524,6 +549,30 @@ button {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.cake-typography-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 7vw, 3.5rem); /* Fluid typography: tidak akan terpotong */
+  font-weight: 600;
+  color: #F3E8D8;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  position: relative;
+  z-index: 5;
+}
+
+.cake-typography-subtitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: clamp(0.9rem, 3vw, 1.2rem);
+  color: rgba(243, 232, 216, 0.85);
+  text-align: center;
+  letter-spacing: 0.1em;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 5;
 }
 
 .cake-stage-bg.lit .cake-image {
