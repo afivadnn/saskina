@@ -795,9 +795,9 @@ wishBackBtn.addEventListener('click', () => {
 
 // 15 placeholder foto — ganti src dengan path foto asli
 const GALLERY_PHOTOS = [
-  'foto1.jpg','foto2.jpg','foto3.jpg','foto4.jpg','foto5.jpg',
+  'foto1.jpeg','foto2.jpg','foto3.jpg','foto4.jpg','foto5.jpg',
   'foto6.jpg','foto7.jpg','foto8.jpg','foto9.jpg','foto10.jpg',
-  'foto11.jpg','foto12.jpg','foto13.jpg','foto14.jpg','foto15.jpg',
+  'foto11.jpg','foto12.jpg','foto13.jpg','foto14.jpg','foto15.jpg','foto16.jpg',
 ];
 
 const gallerySection   = document.getElementById('section-gallery');
