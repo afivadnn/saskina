@@ -806,13 +806,23 @@ button {
 }
 
 .hold-hint {
-  margin-top: 1.5rem;
+  /* position:absolute supaya elemen ini lepas dari flex flow #section-cake.
+     Sebelumnya ini elemen flex biasa (margin-top saja) — begitu textnya
+     muncul/hidden-section dilepas, tinggi kontennya ikut berubah, dan karena
+     parent-nya justify-content:center, seluruh isi (termasuk kue) ikut
+     bergeser untuk tetap center. Dengan absolute, hold-hint jadi lapisan
+     independen yang tidak pernah mempengaruhi posisi kue lagi. */
+  position: absolute;
+  left: 50%;
+  bottom: clamp(2.5rem, 9vh, 4.5rem);
+  transform: translateX(-50%);
+  width: 88%;
+  max-width: 320px;
   font-size: 0.9rem;
   color: rgba(243, 232, 216, 0.8);
   text-align: center;
   transition: color 0.2s ease;
-  position: relative;
-  z-index: 3; /* di atas overlay dim */
+  z-index: 3;
 }
 
 .hold-hint.warning {

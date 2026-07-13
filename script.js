@@ -237,7 +237,15 @@ cakeImg.addEventListener('error', () => {
 // ---- Ignite otomatis (menggantikan tombol "Nyalakan Lilin") ----
 // Urutan barunya: korek muncul & "menyentuh" sumbu -> batang lilin muncul -> api menyala.
 function startIgniteSequence() {
-  igniteTimer = setTimeout(startMatchStrike, IGNITE_DELAY_MS);
+  igniteTimer = setTimeout(showCandleStick, IGNITE_DELAY_MS);
+}
+
+function showCandleStick() {
+  if (candleStick) candleStick.classList.add('visible');
+
+  // Kasih jeda supaya lilin kelihatan sudah "ada" dulu sebelum koreknya muncul,
+  // biar kesannya korek datang buat menyalakan lilin — bukan memunculkannya.
+  igniteTimer = setTimeout(startMatchStrike, 500);
 }
 
 function startMatchStrike() {
@@ -247,13 +255,8 @@ function startMatchStrike() {
     matchStick.classList.add('striking');
   }
 
-  // Batang lilin muncul tepat saat korek "menyentuh" sumbu (~55% dari animasi 650ms)
-  igniteTimer = setTimeout(() => {
-    if (candleStick) candleStick.classList.add('visible');
-  }, 340);
-
-  // Api menyala sesaat setelah batang lilin muncul, korek mulai menjauh
-  igniteTimer = setTimeout(igniteCandle, 420);
+  // Api menyala tepat saat korek "menyentuh" sumbu (~55% dari animasi 650ms)
+  igniteTimer = setTimeout(igniteCandle, 358);
 }
 
 function igniteCandle() {
