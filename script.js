@@ -203,8 +203,19 @@ const candleStick      = document.getElementById('candle-stick');
 const matchStick       = document.getElementById('match-stick');
 const holdRingProgress = document.getElementById('hold-ring-progress');
 const holdHint         = document.getElementById('hold-hint');
+const holdFailPopup    = document.getElementById('hold-fail-popup');
+const holdFailText     = document.getElementById('hold-fail-text');
 const petalsLayer      = document.getElementById('petals-layer');
 const backToMenuBtn    = document.getElementById('back-to-menu-btn');
+
+// Variasi pesan saat hold dilepas kepagian / lepas-lepas — dipilih acak tiap kali
+const HOLD_FAIL_MESSAGES = [
+  'Yah, nafasnya kurang panjang 😢',
+  'Belum padam, ayo coba lagi 😮\u200d💨',
+  'Dikit lagi tuh, tahan terus ya 🕯️',
+  'Hampir! Jangan keburu dilepas 😅',
+  'Wah keburu lepas, ulangi yuk 🎂',
+];
 
 // Cegah menu konteks (long-press) muncul di atas panggung kue pada browser
 // yang masih memunculkannya walau pointer-events gambar sudah dimatikan.
@@ -220,6 +231,7 @@ const wishBackBtn      = document.getElementById('wish-back-btn');
 // Referensi timer/RAF/state — semua wajib direset lewat resetCakeSection()
 let igniteTimer      = null;
 let holdWarningTimer = null;
+let holdFailTimer    = null;
 let blownTextTimer   = null;
 let holdRAF          = null;
 let holdStartTime    = null;
@@ -235,7 +247,7 @@ cakeImg.addEventListener('error', () => {
 });
 
 // ---- Ignite otomatis (menggantikan tombol "Nyalakan Lilin") ----
-// Urutan barunya: korek muncul & "menyentuh" sumbu -> batang lilin muncul -> api menyala.
+// Urutan barunya: batang lilin muncul & diam dulu di kue -> korek muncul & "menyentuh" sumbu -> api menyala.
 function startIgniteSequence() {
   igniteTimer = setTimeout(showCandleStick, IGNITE_DELAY_MS);
 }
@@ -419,18 +431,26 @@ function cancelHold() {
     candleFlame.classList.add('visible');
   }
 
-  if (elapsed < HOLD_DURATION_MS) {
-    holdHint.textContent = 'Yah, nafasnya kurang panjang 😤';
-    holdHint.classList.add('warning');
+  // Kembalikan teks hint ke instruksi normal (sempat diganti "Terus... tahan..."
+  // saat startHold() dipicu) — status gagal/berhasil ditampilkan lewat popup terpisah
+  holdHint.textContent = '👆 Tekan & tahan lilinnya sampai padam';
 
-    clearTimeout(holdWarningTimer);
-    holdWarningTimer = setTimeout(() => {
-      if (!candleIsExtinguished) {
-        holdHint.textContent = '👆 Tekan & tahan lilinnya sampai padam';
-        holdHint.classList.remove('warning');
-      }
-    }, 1600);
+  if (elapsed < HOLD_DURATION_MS) {
+    showHoldFailPopup();
   }
+}
+
+// Popup terpisah untuk hold yang kurang sempurna — tidak menimpa hold-hint,
+// teksnya dipilih acak tiap kali, dan hilang otomatis setelah ~2.2 detik.
+function showHoldFailPopup() {
+  const msg = HOLD_FAIL_MESSAGES[Math.floor(Math.random() * HOLD_FAIL_MESSAGES.length)];
+  holdFailText.textContent = msg;
+  holdFailPopup.classList.add('show');
+
+  clearTimeout(holdFailTimer);
+  holdFailTimer = setTimeout(() => {
+    holdFailPopup.classList.remove('show');
+  }, 2200);
 }
 
 function holdSuccess() {
@@ -742,6 +762,7 @@ function resetCakeSection() {
   clearTimeout(igniteTimer);
   clearTimeout(blownTextTimer);
   clearTimeout(holdWarningTimer);
+  clearTimeout(holdFailTimer);
   cancelAnimationFrame(holdRAF);
   stopSparkEffect();
 
@@ -765,6 +786,7 @@ function resetCakeSection() {
 
   holdHint.classList.add('hidden-section');
   holdHint.classList.remove('warning');
+  if (holdFailPopup) holdFailPopup.classList.remove('show');
 
   hideSection(blownSection);
   hideSection(wishSection);
@@ -798,9 +820,9 @@ wishBackBtn.addEventListener('click', () => {
 
 // 15 placeholder foto — ganti src dengan path foto asli
 const GALLERY_PHOTOS = [
-  'foto1.jpeg','foto2.jpg','foto3.jpg','foto4.jpg','foto5.jpg',
+  'foto1.jpg','foto2.jpg','foto3.jpg','foto4.jpg','foto5.jpg',
   'foto6.jpg','foto7.jpg','foto8.jpg','foto9.jpg','foto10.jpg',
-  'foto11.jpg','foto12.jpg','foto13.jpg','foto14.jpg','foto15.jpg','foto16.jpg',
+  'foto11.jpg','foto12.jpg','foto13.jpg','foto14.jpg','foto15.jpg',
 ];
 
 const gallerySection   = document.getElementById('section-gallery');
@@ -1256,3 +1278,162 @@ if (new URLSearchParams(window.location.search).get('calibrate') === '1') {
     });
   });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const audio = document.getElementById('main-audio');
+  const playPauseBtn = document.getElementById('play-pause-btn');
+  const iconPlay = document.getElementById('icon-play');
+  const iconPause = document.getElementById('icon-pause');
+  const progressBar = document.getElementById('audio-progress');
+  const currentTimeEl = document.getElementById('audio-current-time');
+  const durationEl = document.getElementById('audio-duration');
+  const trackTitleEl = document.getElementById('current-track-title');
+  const statusDot = document.getElementById('player-status-dot');
+  const reelLeft = document.getElementById('reel-left');
+  const reelRight = document.getElementById('reel-right');
+  const trackBtns = document.querySelectorAll('.track-btn');
+
+  // Format Detik ke MM:SS
+  function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
+  // Set Animasi Reel Kaset saat Audio Memutar/Berhenti
+  function setReelAnimation(isPlaying) {
+    if (isPlaying) {
+      reelLeft.classList.add('animate-spin');
+      reelRight.classList.add('animate-spin');
+      reelLeft.style.animationDuration = '12s';
+      reelRight.style.animationDuration = '12s';
+      statusDot.classList.replace('bg-[#B89B86]', 'bg-[#A66E68]');
+      statusDot.classList.add('animate-pulse');
+    } else {
+      reelLeft.classList.remove('animate-spin');
+      reelRight.classList.remove('animate-spin');
+      statusDot.classList.replace('bg-[#A66E68]', 'bg-[#B89B86]');
+      statusDot.classList.remove('animate-pulse');
+    }
+  }
+
+  // Toggle Play / Pause
+  function togglePlay() {
+    if (audio.paused) {
+      audio.play().then(() => {
+        iconPlay.classList.add('hidden');
+        iconPause.classList.remove('hidden');
+        setReelAnimation(true);
+      }).catch(err => console.error("Playback error:", err));
+    } else {
+      audio.pause();
+      iconPlay.classList.remove('hidden');
+      iconPause.classList.add('hidden');
+      setReelAnimation(false);
+    }
+  }
+
+  playPauseBtn.addEventListener('click', togglePlay);
+
+  // Update Metadata & Durasi
+  audio.addEventListener('loadedmetadata', () => {
+    durationEl.textContent = formatTime(audio.duration);
+  });
+
+  // Update Progress Bar & Waktu Berjalan
+  audio.addEventListener('timeupdate', () => {
+    if (!isNaN(audio.duration) && audio.duration > 0) {
+      const progressPercent = (audio.currentTime / audio.duration) * 100;
+      progressBar.value = progressPercent;
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    }
+  });
+
+  // Scrubbing / Seeking Musik melalui Progress Bar
+  progressBar.addEventListener('input', () => {
+    if (!isNaN(audio.duration)) {
+      audio.currentTime = (progressBar.value / 100) * audio.duration;
+    }
+  });
+
+  // Ketika Lagu Selesai
+  audio.addEventListener('ended', () => {
+    iconPlay.classList.remove('hidden');
+    iconPause.classList.add('hidden');
+    progressBar.value = 0;
+    currentTimeEl.textContent = '0:00';
+    setReelAnimation(false);
+  });
+
+  // Klik Tracklist untuk Ganti Lagu (Atribut data-src & data-title)
+// --- AWAL MODIFIKASI TOAST MODAL ---
+  const nextActionModal = document.getElementById('next-action-modal');
+  const nextActionCard = document.getElementById('next-action-card');
+  const btnLanjutKue = document.getElementById('btn-lanjut-kue');
+  const btnPilihLagu = document.getElementById('btn-pilih-lagu');
+  const mainMenuContainer = document.querySelector('#main-page > div');
+
+  function showNextActionModal() {
+    nextActionModal.classList.remove('hidden-section');
+    mainMenuContainer.style.transition = 'filter 0.4s ease, filter 0.4s ease';
+    
+    requestAnimationFrame(() => {
+      nextActionModal.classList.add('modal-enter-active');
+      mainMenuContainer.classList.add('menu-blur');
+    });
+  }
+
+  function hideNextActionModal() {
+    nextActionModal.classList.remove('modal-enter-active');
+    mainMenuContainer.classList.remove('menu-blur');
+    
+    setTimeout(() => {
+      nextActionModal.classList.add('hidden-section');
+    }, 300);
+  }
+
+  // Tutup modal jika user memilih "Pilih Lagu Lain"
+  btnPilihLagu.addEventListener('click', hideNextActionModal);
+
+  // Transisi ke Cake Section jika user memilih "Lanjut Tiup Lilin"
+  btnLanjutKue.addEventListener('click', () => {
+    hideNextActionModal();
+    sceneTransition(() => {
+      hideSection(mainPage);
+      resetCakeSection();
+      showSection(cakeSection);
+      if (stopCakeAmbient) stopCakeAmbient();
+      stopCakeAmbient = startAmbientPetals(cakeSection, 4);
+      startIgniteSequence();
+    }, 280, 420);
+  });
+  // --- AKHIR LOGIKA MODAL ---
+
+  // Ganti blok event listener trackBtns sebelumnya dengan yang ini
+  trackBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const newSrc = btn.getAttribute('data-src');
+      const newTitle = btn.getAttribute('data-title');
+
+      if (newSrc && audio.src !== window.location.origin + '/' + newSrc && !audio.src.includes(newSrc)) {
+        audio.src = newSrc;
+        trackTitleEl.textContent = newTitle;
+        progressBar.value = 0;
+        audio.play().then(() => {
+          iconPlay.classList.add('hidden');
+          iconPause.classList.remove('hidden');
+          setReelAnimation(true);
+          
+          // Munculkan toast setelah delay 600ms (biar user sadar lagunya terganti)
+          setTimeout(showNextActionModal, 600);
+        }).catch(err => console.error("Audio src error:", err));
+      } else {
+        // Jika lagu yang sama diklik lagi, play dan langsung munculkan modal
+        if (audio.paused) togglePlay();
+        showNextActionModal();
+      }
+    });
+  });
+});
+
