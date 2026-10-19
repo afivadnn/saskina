@@ -359,7 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentPin === CORRECT_PASSWORD) {
         sceneTransition(() => {
           hideSection(passwordPage);
-          showSection(mainPage);
+          showSection(document.getElementById('section-intro'));
+          startTypingStory(); // Panggil Typing Story
         });
       } else {
         triggerPasswordError();
@@ -703,38 +704,43 @@ function holdSuccess() {
   holdRAF = null;
   stopSparkEffect();
 
-  // Animasi padam api + asap
   candleFlame.classList.remove('blowing');
   candleFlame.classList.add('extinguishing');
   spawnSmokePuffs();
 
-  // Setelah asap selesai, mulai blackout penuh lalu pindah scene
   extinguishTimer = setTimeout(() => {
     candleFlame.classList.remove('visible', 'extinguishing');
     holdTarget.style.setProperty('--cake-scale', '1');
 
-    // Stop ambient petals before transition
     if (stopCakeAmbient) { stopCakeAmbient(); stopCakeAmbient = null; }
 
-    // Fade ke hitam penuh (overlay dim sudah ~0.72, scene-transition menutup sisanya)
-    // durIn 500ms → hitam penuh → tampilkan blown section → fade out 600ms
-    sceneTransition(() => {
-      // Reset dim overlay setelah blackout sudah penuh
+    // FADE TO BLACK MURNI (Tanpa transisi bunga)
+    const blackout = document.getElementById('scene-transition');
+    blackout.classList.add('fade-in-black'); 
+    
+    setTimeout(() => {
       cakeSection.style.setProperty('--dim-opacity', '0');
       hideSection(cakeSection);
+      
+      // Ubah teks Blown agar lebih emosional
+      const blownText = document.getElementById('blown-text-screen');
+      if(blownText) blownText.innerHTML = "Apinya padam...<br><span class='text-xl sm:text-2xl text-rose/80 mt-4 block'>Semoga semua harapanmu ikut terbang malam ini ✨</span>";
+      
       showSection(blownSection);
-    });
+      blackout.classList.remove('fade-in-black'); 
+    }, 600); 
+
   }, 500);
 
-  // Setelah blown text cukup terbaca, fade ke wish section
   blownTextTimer = setTimeout(() => {
+    // BARU panggil transisi bunga SETELAH momen hening selesai
     sceneTransition(() => {
       hideSection(blownSection);
       renderWishes();
       showSection(wishSection);
       wishSection.scrollTop = 0;
     });
-  }, 3200); // 500ms extinguish + 600ms fadeToBlack + 700ms fadeIn + 1400ms baca teks
+  }, 4800); // Jeda hening yang dramatis
 }
 
 // Pointer Events menyatukan mouse & touch dalam satu API
@@ -772,98 +778,123 @@ function makePetalFlower() {
   return wrap;
 }
 
+// ============================================================
+// WISH SECTION REDESIGN: ZERO-LAYOUT-SHIFT MOTION
+// ============================================================
+
 function renderWishes() {
+  const wishesContainer = document.getElementById('wishes-container');
+  const wishHeader = document.getElementById('wish-header');
+  const wishFooter = document.getElementById('wish-footer-hint');
+  
+  if (!wishesContainer) return;
+  
   wishesContainer.innerHTML = '';
   wishAlreadyPicked = false;
+  
+  // Reset opacity elemen UI
+  if (wishHeader) wishHeader.style.opacity = '1';
+  if (wishFooter) wishFooter.style.opacity = '1';
+  
+  const wishPopup = document.getElementById('wish-popup');
+  const popupBackdrop = document.getElementById('wish-popup-backdrop');
+  const popupCard = document.getElementById('wish-popup-card');
+
   if (wishPopup) wishPopup.classList.add('hidden-section');
+  if (popupBackdrop) popupBackdrop.classList.add('opacity-0');
+  if (popupCard) {
+    popupCard.classList.add('opacity-0', 'scale-90', 'translate-y-6');
+    popupCard.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
+  }
+
+  // Koordinat Absolut terukur (% dari container)
+  // Menjamin jarak visual seimbang di layar HP maupun Desktop tanpa pergeseran
+  const absoluteCoordinates = [
+    { top: '16%', left: '28%', delay: '0s' },
+    { top: '38%', left: '72%', delay: '-1.2s' },
+    { top: '62%', left: '28%', delay: '-2.4s' },
+    { top: '84%', left: '72%', delay: '-3.6s' }
+  ];
 
   WISHES.forEach((label, index) => {
-    // Wrapper tombol
-    const tag = document.createElement('button');
-    tag.type = 'button';
-    tag.className = 'wish-tag';
-    tag.dataset.index = index;
-    tag.setAttribute('aria-label', `Pilih wish: ${label}`);
-
-    // Pita di atas
-    const ribbon = document.createElement('div');
-    ribbon.className = 'wish-tag-ribbon';
-    tag.appendChild(ribbon);
-
-    // Kartu tag
     const card = document.createElement('div');
-    card.className = 'wish-tag-card';
+    card.className = 'wish-card-item is-idle';
+    
+    const coord = absoluteCoordinates[index % absoluteCoordinates.length];
+    card.style.top = coord.top;
+    card.style.left = coord.left;
+    card.style.animationDelay = coord.delay;
 
-    // Lubang cincin
-    const hole = document.createElement('div');
-    hole.className = 'wish-tag-hole';
-    card.appendChild(hole);
+    card.innerHTML = `
+      <div class="wish-card-inner">
+        <span class="text-gold/70 text-xs">✦</span>
+        <span class="wish-card-text">${label}</span>
+      </div>
+    `;
 
-    // Label teks
-    const lbl = document.createElement('span');
-    lbl.className = 'wish-tag-label';
-    lbl.textContent = label;
-    card.appendChild(lbl);
-
-    // Hiasan bunga
-    card.appendChild(makePetalFlower());
-    tag.appendChild(card);
-
-    // Pasang event listener ke fungsi terpisah agar kode tetap bersih
-    tag.addEventListener('click', () => handleWishClick(tag));
-
-    // WAJIB: Masukkan tag ke dalam container agar muncul di layar
-    wishesContainer.appendChild(tag);
-
-    // Grid stagger delay
-    const col = index % 2;
-    const row = Math.floor(index / 2);
-    const delay = 80 + (row * 120) + (col * 80);
-    setTimeout(() => tag.classList.add('tag-revealed'), delay);
+    card.addEventListener('click', () => handleWishClick(card, wishesContainer));
+    wishesContainer.appendChild(card);
   });
 
-  // Start ambient petals in wish section
   if (stopWishAmbient) stopWishAmbient();
-  stopWishAmbient = startAmbientPetals(wishSection, 5);
+  stopWishAmbient = startAmbientPetals(wishSection, 4);
 }
 
-function handleWishClick(selectedTag) {
+function handleWishClick(selectedCard, container) {
   if (wishAlreadyPicked) return;
   wishAlreadyPicked = true;
 
-  // 1. Isolasi fokus ke tag yang dipilih
-  document.querySelectorAll('.wish-tag').forEach((tag) => {
-    if (tag === selectedTag) {
-      tag.classList.add('selected-float');
+  const wishHeader = document.getElementById('wish-header');
+  const wishFooter = document.getElementById('wish-footer-hint');
+
+  // 1. Redupkan header & footer perlahan
+  if (wishHeader) wishHeader.style.opacity = '0';
+  if (wishFooter) wishFooter.style.opacity = '0';
+
+  // 2. Tembakkan partikel cahaya pada titik kartu yang dipilih
+  spawnWishSparkles(selectedCard, container);
+
+  // 3. Eksekusi animasi terpisah untuk wish terpilih & wish lainnya
+  const allCards = container.querySelectorAll('.wish-card-item');
+  allCards.forEach((card) => {
+    card.classList.remove('is-idle');
+    if (card === selectedCard) {
+      card.classList.add('is-selected');
     } else {
-      tag.classList.add('dimmed');
-      tag.style.pointerEvents = 'none'; // Mencegah interaksi tidak disengaja
+      // Memudar di tempat persis tanpa berpindah koordinat
+      card.classList.add('is-fading');
     }
   });
 
-  // 2. Munculkan popup konfirmasi & jalankan efek visual
-  spawnPetals(24);
-  if (wishPopup) wishPopup.classList.remove('hidden-section');
+  // 4. Munculkan Modal Konfirmasi setelah efek sublimasi selesai (~1.2s)
+  setTimeout(() => {
+    const wishPopup = document.getElementById('wish-popup');
+    const popupBackdrop = document.getElementById('wish-popup-backdrop');
+    const popupCard = document.getElementById('wish-popup-card');
 
-  // 3. Transisi otomatis ke Gallery setelah jeda membaca (~3 detik)
+    if (wishPopup) wishPopup.classList.remove('hidden-section');
+
+    requestAnimationFrame(() => {
+      if (popupBackdrop) popupBackdrop.classList.remove('opacity-0');
+      if (popupCard) {
+        popupCard.classList.remove('opacity-0', 'scale-90', 'translate-y-6');
+        popupCard.classList.add('opacity-100', 'scale-100', 'translate-y-0');
+      }
+    });
+  }, 1200);
+
+  // 5. Transisi mulus ke Galeri setelah pesan dibaca (~4 detik)
   setTimeout(() => {
     sceneTransition(() => {
-      // Hentikan efek background dari Wish Section
-      if (stopWishAmbient) { 
-        stopWishAmbient(); 
-        stopWishAmbient = null; 
-      }
-      
-      // Sembunyikan Wish Section sepenuhnya
+      if (stopWishAmbient) { stopWishAmbient(); stopWishAmbient = null; }
       hideSection(wishSection);
-      if (wishPopup) wishPopup.classList.add('hidden-section');
       
-      // Persiapkan dan tampilkan Gallery Section
-      const gallerySection = document.getElementById('section-gallery');
+      const wishPopup = document.getElementById('wish-popup');
+      if (wishPopup) wishPopup.classList.add('hidden-section');
+
       resetGallery();
       showSection(gallerySection);
-      
-      // Render layout galeri
+
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           buildGallery();
@@ -872,7 +903,41 @@ function handleWishClick(selectedTag) {
         });
       });
     });
-  }, 3000); 
+  }, 4800);
+}
+
+// Sparkle Effect Generator
+function spawnWishSparkles(targetCard, container) {
+  const rect = targetCard.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+
+  // Hitung pusat kartu terhadap container
+  const centerX = rect.left + rect.width / 2 - containerRect.left;
+  const centerY = rect.top + rect.height / 2 - containerRect.top;
+
+  for (let i = 0; i < 20; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'wish-sparkle-particle';
+
+    const size = 4 + Math.random() * 6;
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 40 + Math.random() * 80;
+
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance;
+
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.left = `${centerX}px`;
+    particle.style.top = `${centerY}px`;
+    particle.style.setProperty('--dx', `${dx}px`);
+    particle.style.setProperty('--dy', `${dy}px`);
+    particle.style.animationDelay = `${Math.random() * 0.2}s`;
+
+    container.appendChild(particle);
+
+    setTimeout(() => particle.remove(), 1400);
+  }
 }
 
 // Kelopak bunga berjatuhan — dirender ke dalam section wish
@@ -1016,13 +1081,6 @@ wishBackBtn.addEventListener('click', () => {
 // 5. SECTION GALLERY — GALERI LOVE (FASE 3)
 // ============================================================
 
-// 15 placeholder foto — ganti src dengan path foto asli
-const GALLERY_PHOTOS = [
-  'foto1.jpg','foto2.jpg','foto3.jpg','foto4.jpg','foto5.jpg',
-  'foto6.jpg','foto7.jpg','foto8.jpg','foto9.jpg','foto10.jpg',
-  'foto11.jpg','foto12.jpg','foto13.jpg','foto14.jpg','foto15.jpg',
-];
-
 const gallerySection   = document.getElementById('section-gallery');
 const galleryArena     = document.getElementById('gallery-heart-arena');
 const galleryCaption   = document.getElementById('gallery-caption');
@@ -1035,220 +1093,279 @@ const lightboxImg      = document.getElementById('lightbox-img');
 const lightboxClose    = document.getElementById('lightbox-close');
 const lightboxBackdrop = document.getElementById('lightbox-backdrop');
 
-// ── 16 tile membentuk hati sempurna, grid 5 kolom × 5 baris ─
-//
-//   0  1  2  3  4
-//   .  X  .  X  .   row 0 — dua puncak bukit
-//   X  X  X  X  X   row 1 — bahu penuh
-//   X  X  X  X  X   row 2 — badan
-//   .  X  X  X  .   row 3 — menyempit
-//   .  .  X  .  .   row 4 — ujung lancip
-//
-//   Jumlah: 2+5+5+3+1 = 16
-//   (GALLERY_PHOTOS bisa 15 — tile ke-16 mengulang foto pertama)
-const HEART_MASK = null;
+// ============================================================
+// MEMORY EXHIBITION GALLERY LOGIC
+// ============================================================
 
-const HEART_CELLS = [
-  { row: 0, col: 1 }, { row: 0, col: 3 },
-  { row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 }, { row: 1, col: 3 }, { row: 1, col: 4 },
-  { row: 2, col: 0 }, { row: 2, col: 1 }, { row: 2, col: 2 }, { row: 2, col: 3 }, { row: 2, col: 4 },
-  { row: 3, col: 1 }, { row: 3, col: 2 }, { row: 3, col: 3 },
-  { row: 4, col: 2 },
+// Data 15 Foto Pameran Kenangan
+const EXHIBITION_DATA = [
+  {
+    id: 1,
+    src: 'foto1.jpg',
+    tag: 'EXHIBIT 01 — AWAL KISAH',
+    title: 'Awal Pertemuan',
+    desc: 'Hari di mana semuanya dimulai tanpa kita sadari.',
+    type: 'feature-hero'
+  },
+  {
+    id: 2,
+    src: 'foto2.jpg',
+    tag: 'EXHIBIT 02 — TAWA PERTAMA',
+    title: 'Senyum yang Selalu Sama',
+    desc: 'Tawa kecilmu yang selalu berhasil menenangkan hari.',
+    type: 'portrait-single'
+  },
+  {
+    id: 3,
+    src: 'foto3.jpg',
+    tag: 'EXHIBIT 03 — PERJALANAN',
+    title: 'Jejak Langkah Bersama',
+    desc: 'Menyusuri jalanan biasa yang terasa istimewa bersamamu.',
+    type: 'landscape-wide'
+  },
+  {
+    id: 4,
+    src: 'foto4.jpg',
+    tag: 'EXHIBIT 04 — KEBERSAMAAN I',
+    title: 'Sore yang Tenang',
+    desc: 'Tidak perlu banyak kata, cukup ada kamu di sampingku.',
+    type: 'dual-1'
+  },
+  {
+    id: 5,
+    src: 'foto5.jpg',
+    tag: 'EXHIBIT 05 — KEBERSAMAAN II',
+    title: 'Sudut Favorit',
+    desc: 'Tempat kecil yang menyimpan ribuan cerita kita.',
+    type: 'dual-2'
+  },
+  {
+    id: 6,
+    src: 'foto6.jpg',
+    tag: 'EXHIBIT 06 — SEMENTARA',
+    title: 'Menatap Masa Depan',
+    desc: 'Melihat jauh ke depan dengan menggenggam tanganmu.',
+    type: 'portrait-single'
+  },
+  {
+    id: 7,
+    src: 'foto7.jpg',
+    tag: 'EXHIBIT 07 — SEDERHANA',
+    title: 'Momen Sederhana',
+    desc: 'Hal biasa yang terasa sempurna karena kamu yang melakukan.',
+    type: 'landscape-wide'
+  },
+  {
+    id: 8,
+    src: 'foto8.jpg',
+    tag: 'EXHIBIT 08 — CATATAN KECIL',
+    title: 'Cerita Tanpa Suara',
+    desc: 'Tatapan mata yang selalu mengerti tanpa perlu dijelaskan.',
+    type: 'feature-hero'
+  },
+  {
+    id: 9,
+    src: 'foto9.jpg',
+    tag: 'EXHIBIT 09 — PELUKAN HANGAT',
+    title: 'Rumah Terbaik',
+    desc: 'Di mana pun kita berada, bersamamu adalah tempat pulang.',
+    type: 'portrait-single'
+  },
+  {
+    id: 10,
+    src: 'foto10.jpg',
+    tag: 'EXHIBIT 10 — HARI ITU',
+    title: 'Hari yang Dikenang',
+    desc: 'Satu dari sekian banyak hari yang ingin kuulang kembali.',
+    type: 'landscape-wide'
+  },
+  {
+    id: 11,
+    src: 'foto11.jpg',
+    tag: 'EXHIBIT 11 — HARAPAN',
+    title: 'Doa dalam Diam',
+    desc: 'Selalu mendoakan kebahagiaanmu di setiap langkah.',
+    type: 'dual-1'
+  },
+  {
+    id: 12,
+    src: 'foto12.jpg',
+    tag: 'EXHIBIT 12 — LANGKAH BARU',
+    title: 'Tumbuh Bersama',
+    desc: 'Belajar dan makin dewasa di setiap fase kehidupan.',
+    type: 'dual-2'
+  },
+  {
+    id: 13,
+    src: 'foto13.jpg',
+    tag: 'EXHIBIT 13 — CAHAYA',
+    title: 'Binar Mata Itu',
+    desc: 'Cahaya favorit yang tidak pernah pudar.',
+    type: 'portrait-single'
+  },
+  {
+    id: 14,
+    src: 'foto14.jpg',
+    tag: 'EXHIBIT 14 — BERSAMAMU',
+    title: 'Hari-Hari Terbaik',
+    desc: 'Setiap lembar waktu yang ditulis indah oleh kehadiranmu.',
+    type: 'landscape-wide'
+  },
+  {
+    id: 15,
+    src: 'foto15.jpg',
+    tag: 'EXHIBIT 15 — UNTUK SELAMANYA',
+    title: 'Isma Saskina.',
+    desc: 'Terima kasih sudah ada, tumbuh, dan menjadi bagian terindah dalam hidupku.',
+    type: 'climax'
+  }
 ];
 
-// Kumpulkan semua posisi grid yang aktif
-function getHeartCells() {
-  return HEART_CELLS;
-}
+let exhibitionObserver = null;
 
-// ── Buat & animasikan tile hati ─────────────────────────────
 function buildGallery() {
-  galleryArena.innerHTML = '';
+  const container = document.getElementById('exhibition-container');
+  if (!container) return;
 
-  const COLS = 5;
-  const ROWS = 5;
+  container.innerHTML = '';
 
-  const arenaW = galleryArena.offsetWidth;
-  const arenaH = galleryArena.offsetHeight;
+  let currentDualGroup = null;
 
-  const cellW = arenaW / COLS;
-  const cellH = arenaH / ROWS;
-
-  // Tile sedikit lebih besar dari cell untuk efek overlap
-  const OVERLAP_FACTOR = 1.08;
-  const tileW = Math.round(cellW * OVERLAP_FACTOR);
-  const tileH = Math.round(cellH * OVERLAP_FACTOR);
-
-  const allCells = getHeartCells();  // tepat 15 sel
-
-  // Indeks sel yang mendapat sparkle (~30%)
-  const sparkleSet = new Set();
-  while (sparkleSet.size < Math.round(allCells.length * 0.3)) {
-    sparkleSet.add(Math.floor(Math.random() * allCells.length));
-  }
-
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const arenaRect = galleryArena.getBoundingClientRect();
-
-  allCells.forEach(({ row, col }, i) => {
-    const photoSrc = GALLERY_PHOTOS[i % GALLERY_PHOTOS.length];
-
-    // Center tile di dalam cell-nya
-    const cx = col * cellW + cellW / 2;
-    const cy = row * cellH + cellH / 2;
-    const finalLeft = cx - tileW / 2;
-    const finalTop  = cy - tileH / 2;
-
-    // Wrapper tile
-    const tile = document.createElement('div');
-    tile.className = 'heart-tile';
-    tile.style.width  = `${tileW}px`;
-    tile.style.height = `${tileH}px`;
-    tile.style.left   = `${finalLeft}px`;
-    tile.style.top    = `${finalTop}px`;
-
-    // Rotasi kecil acak per tile (±3°)
-    const rot = (Math.random() * 6 - 3).toFixed(2);
-    tile.style.setProperty('--rot', `${rot}deg`);
-
-    // Posisi awal: dari luar layar
-    const absX = arenaRect.left + cx;
-    const absY = arenaRect.top  + cy;
-    const origins = [
-      { ox: -(absX + tileW),             oy: (Math.random() - 0.5) * vh * 0.5 },
-      { ox: vw - absX + tileW,           oy: (Math.random() - 0.5) * vh * 0.5 },
-      { ox: (Math.random() - 0.5) * vw * 0.5, oy: -(absY + tileH) },
-      { ox: (Math.random() - 0.5) * vw * 0.5, oy: vh - absY + tileH },
-    ];
-    const { ox, oy } = origins[i % 4];
-    tile.style.setProperty('--ox', `${ox.toFixed(1)}px`);
-    tile.style.setProperty('--oy', `${oy.toFixed(1)}px`);
-
-    // Gambar
-    const img = document.createElement('img');
-    img.src   = photoSrc;
-    img.alt   = `Foto ${i + 1}`;
-    img.className = 'heart-tile-img';
-    tile.appendChild(img);
-
-    // Overlay rose frosted
-    const overlay = document.createElement('div');
-    overlay.className = 'heart-tile-overlay';
-    tile.appendChild(overlay);
-
-    // Sparkle ✦
-    if (sparkleSet.has(i)) {
-      const sp = document.createElement('span');
-      sp.className = 'heart-tile-sparkle';
-      sp.setAttribute('aria-hidden', 'true');
-      sp.textContent = '✦';
-      sp.style.top  = `${30 + Math.random() * 40}%`;
-      sp.style.left = `${25 + Math.random() * 50}%`;
-      sp.style.setProperty('--sp-delay', `${(Math.random() * 2).toFixed(2)}s`);
-      tile.appendChild(sp);
+  EXHIBITION_DATA.forEach((item) => {
+    // Handling Layout Dual Stagger
+    if (item.type === 'dual-1') {
+      currentDualGroup = document.createElement('div');
+      currentDualGroup.className = 'exhibit-item layout-dual-stagger';
+      
+      const el1 = createExhibitElement(item, 'dual-item-1');
+      currentDualGroup.appendChild(el1);
+      return;
     }
 
-    // Klik → lightbox
-    tile.setAttribute('role', 'button');
-    tile.setAttribute('tabindex', '0');
-    tile.setAttribute('aria-label', `Buka foto ${i + 1}`);
-    tile.addEventListener('click', () => openLightbox(photoSrc, i + 1));
-    tile.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(photoSrc, i + 1); }
-    });
+    if (item.type === 'dual-2' && currentDualGroup) {
+      const el2 = createExhibitElement(item, 'dual-item-2');
+      currentDualGroup.appendChild(el2);
+      container.appendChild(currentDualGroup);
+      currentDualGroup = null;
+      return;
+    }
 
-    galleryArena.appendChild(tile);
-
-    // Stagger animasi masuk — spring overshoot
-    setTimeout(() => {
-      tile.classList.add('in-place');
-      // Give each tile its own idle drift params
-      tile.style.setProperty('--idle-dur', `${(3.5 + Math.random() * 2.5).toFixed(2)}s`);
-      tile.style.setProperty('--idle-delay', `${(Math.random() * 2).toFixed(2)}s`);
-      tile.style.setProperty('--idle-amp', `${(-(2 + Math.random() * 4)).toFixed(1)}px`);
-    }, 80 + i * 70);
+    // Standard Layout Items
+    const wrapper = document.createElement('div');
+    wrapper.className = `exhibit-item layout-${item.type}`;
+    wrapper.appendChild(createExhibitElement(item));
+    container.appendChild(wrapper);
   });
 
-  // Caption & tombol surat muncul setelah semua tile masuk — staggered per child
-  const totalDelay = 80 + allCells.length * 70 + 600;
-  setTimeout(() => {
-    galleryCaption.classList.remove('hidden-section');
-    revealCaptionStagger(galleryCaption);
-    // Letter button comes in after caption
-    setTimeout(() => {
-      galleryLetterBtn.classList.remove('hidden-section');
-      galleryLetterBtn.classList.add('revealed');
-    }, 400);
-  }, totalDelay);
+  // Inisialisasi Intersection Observer untuk Scroll Reveal
+  initExhibitionObserver();
+}
+
+function createExhibitElement(data, extraClass = '') {
+  const card = document.createElement('div');
+  card.className = `exhibit-card-wrapper ${extraClass}`;
+
+  card.innerHTML = `
+    <div class="exhibit-frame" onclick="openLightbox('${data.src}', '${data.title}')">
+      <img src="${data.src}" alt="${data.title}" class="exhibit-img" loading="lazy" />
+    </div>
+    <div class="exhibit-plaque">
+      <span class="exhibit-tag">${data.tag}</span>
+      <h3 class="exhibit-title">${data.title}</h3>
+      <p class="exhibit-desc">${data.desc}</p>
+    </div>
+  `;
+
+  return card;
+}
+
+function initExhibitionObserver() {
+  if (exhibitionObserver) exhibitionObserver.disconnect();
+
+  const items = document.querySelectorAll('.exhibit-item');
+  const footer = document.getElementById('exhibition-footer');
+
+  exhibitionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+      }
+    });
+  }, {
+    threshold: 0.15
+  });
+
+  items.forEach((item) => exhibitionObserver.observe(item));
+
+  // Observer khusus untuk footer tombol lanjut
+  if (footer) {
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          footer.style.opacity = '1';
+        }
+      });
+    }, { threshold: 0.3 });
+    footerObserver.observe(footer);
+  }
 }
 
 function resetGallery() {
-  galleryArena.innerHTML = '';
-  galleryCaption.classList.add('hidden-section');
-  galleryLetterBtn.classList.add('hidden-section');
-  galleryLetterBtn.classList.remove('revealed');
+  const container = document.getElementById('exhibition-container');
+  const footer = document.getElementById('exhibition-footer');
+  if (container) container.innerHTML = '';
+  if (footer) footer.style.opacity = '0';
+  if (exhibitionObserver) exhibitionObserver.disconnect();
   closeLightbox();
-  if (stopGalleryAmbient) { stopGalleryAmbient(); stopGalleryAmbient = null; }
 }
 
-/**
- * Staggered reveal for gallery caption children (eyebrow, heading, sub).
- * Wraps each text node in a .caption-word span for per-element control.
- */
-function revealCaptionStagger(captionEl) {
-  const children = Array.from(captionEl.children);
-  children.forEach((child, i) => {
-    child.classList.add('caption-word');
-    setTimeout(() => child.classList.add('revealed'), i * 120);
-  });
-}
+// Open & Close Lightbox
+function openLightbox(src, caption) {
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  const lbCap = document.getElementById('lightbox-caption');
 
-// ── Lightbox ────────────────────────────────────────────────
-function openLightbox(src, index) {
-  lightboxImg.src = src;
-  lightboxImg.alt = `Foto ${index}`;
-  lightbox.classList.remove('hidden-section');
-  lightboxClose.focus();
-  document.addEventListener('keydown', onLightboxKey);
+  if (lb && lbImg) {
+    lbImg.src = src;
+    if (lbCap) lbCap.textContent = caption;
+    lb.classList.remove('hidden-section');
+  }
 }
 
 function closeLightbox() {
-  lightbox.classList.add('hidden-section');
-  lightboxImg.src = '';
-  document.removeEventListener('keydown', onLightboxKey);
+  const lb = document.getElementById('lightbox');
+  if (lb) lb.classList.add('hidden-section');
 }
 
-function onLightboxKey(e) {
-  if (e.key === 'Escape') closeLightbox();
-}
+// Navigasi Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const galleryBackBtn = document.getElementById('gallery-back-btn');
+  const galleryLetterBtn = document.getElementById('gallery-letter-btn');
+  const lightboxClose = document.getElementById('lightbox-close');
+  const lightboxBackdrop = document.getElementById('lightbox-backdrop');
 
-lightboxClose.addEventListener('click', closeLightbox);
-lightboxBackdrop.addEventListener('click', closeLightbox);
-
-// ── Navigasi ke/dari galeri ──────────────────────────────────
-function openGallery() {
-  sceneTransition(() => {
-    hideSection(mainPage);
-    resetGallery();
-    showSection(gallerySection);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        buildGallery();
-        // Start ambient petals
-        if (stopGalleryAmbient) stopGalleryAmbient();
-        stopGalleryAmbient = startAmbientPetals(gallerySection, 6);
+  if (galleryBackBtn) {
+    galleryBackBtn.addEventListener('click', () => {
+      sceneTransition(() => {
+        resetGallery();
+        hideSection(document.getElementById('section-gallery'));
+        showSection(document.getElementById('main-page'));
       });
     });
-  });
-}
+  }
 
-galleryBackBtn.addEventListener('click', () => {
-  sceneTransition(() => {
-    resetGallery();
-    hideSection(gallerySection);
-    showSection(mainPage);
-  });
+  if (galleryLetterBtn) {
+    galleryLetterBtn.addEventListener('click', () => {
+      sceneTransition(() => {
+        resetGallery();
+        hideSection(document.getElementById('section-gallery'));
+        openMessageSection();
+      });
+    });
+  }
+
+  if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+  if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', closeLightbox);
 });
 
 galleryLetterBtn.addEventListener('click', () => {
@@ -1583,28 +1700,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Tutup modal jika user memilih "Pilih Lagu Lain"
   btnPilihLagu.addEventListener('click', hideNextActionModal);
-
-  // Transisi ke Section yang sesuai saat user klik Lanjut
+// Transisi ke Section yang sesuai saat user klik Lanjut
   btnLanjutKue.addEventListener('click', () => {
     hideNextActionModal();
-    if (currentSelectedMenu === 'galeri') {
-      openGallery();
-    } else if (currentSelectedMenu === 'pesan') {
-      sceneTransition(() => {
-        hideSection(mainPage);
-        openMessageSection();
-      });
-    } else {
-      // Default: Kalender / Kue & Lilin
-      sceneTransition(() => {
-        hideSection(mainPage);
-        resetCakeSection();
-        showSection(cakeSection);
-        if (stopCakeAmbient) stopCakeAmbient();
-        stopCakeAmbient = startAmbientPetals(cakeSection, 4);
-        startIgniteSequence();
-      });
-    }
+    
+    // PERBAIKAN LOGIKA: Apapun lagu yang dipilih, perjalanan WAJIB dimulai dari Kue (Linear Journey)
+    sceneTransition(() => {
+      hideSection(mainPage);
+      resetCakeSection();
+      showSection(cakeSection);
+      if (stopCakeAmbient) stopCakeAmbient();
+      stopCakeAmbient = startAmbientPetals(cakeSection, 4);
+      startIgniteSequence();
+    });
   });
 
   // Track buttons event listener
@@ -1635,3 +1743,191 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// ============================================================
+// FITUR TAMBAHAN: TYPING STORY, ENVELOPE, PARALLAX, & LOVE COUNTER
+// ============================================================
+
+// 1. TYPING STORY INTRO
+const storyText = "Sebelum kita merayakan hari ini, mari kita putar kembali waktunya sebentar...";
+const typingContainer = document.getElementById('typing-container');
+const introSection = document.getElementById('section-intro');
+const skipHint = document.getElementById('skip-hint');
+let charIndex = 0;
+let typingTimeout;
+let isTypingSkipped = false;
+
+function startTypingStory() {
+  charIndex = 0;
+  isTypingSkipped = false;
+  typingContainer.textContent = '';
+  typingContainer.classList.add('typing-cursor');
+  typeCharacter();
+  
+  // Munculkan hint skip setelah 2 detik
+  setTimeout(() => { skipHint.classList.remove('opacity-0'); }, 2000);
+}
+
+function typeCharacter() {
+  if (isTypingSkipped) return;
+  if (charIndex < storyText.length) {
+    typingContainer.textContent += storyText.charAt(charIndex);
+    charIndex++;
+    typingTimeout = setTimeout(typeCharacter, 60); // Kecepatan ketik (ms)
+  } else {
+    typingContainer.classList.remove('typing-cursor');
+  }
+}
+
+// Tap di mana saja untuk skip atau lanjut
+// Ganti bagian transisi Typing Story menjadi:
+introSection.addEventListener('click', () => {
+  if (charIndex < storyText.length && !isTypingSkipped) {
+    isTypingSkipped = true;
+    clearTimeout(typingTimeout);
+    typingContainer.textContent = storyText;
+    typingContainer.classList.remove('typing-cursor');
+  } else {
+    // Lanjut ke Memory Section
+    sceneTransition(() => {
+      hideSection(introSection);
+      showSection(document.getElementById('section-memory'));
+      
+      // Trigger animasi fade-in elemen memori
+      setTimeout(() => {
+        document.getElementById('mem-text-1').classList.remove('opacity-0', 'translate-y-4');
+        document.getElementById('mem-video-frame').classList.remove('opacity-0', 'scale-95');
+        document.getElementById('mem-text-2').classList.remove('opacity-0', 'translate-y-4');
+        document.getElementById('btn-lanjut-memory').classList.remove('opacity-0', 'translate-y-4');
+      }, 500);
+    });
+  }
+});
+
+// Listener untuk tombol lanjut di Memory Section
+document.getElementById('btn-lanjut-memory').addEventListener('click', () => {
+  sceneTransition(() => {
+    hideSection(document.getElementById('section-memory'));
+    showSection(mainPage);
+  });
+});
+
+// 2. PARALLAX EFFECT DI MAIN MENU
+const mainPageEl = document.getElementById('main-page');
+const mixtapeCard = document.querySelector('#main-page > div');
+
+mainPageEl.addEventListener('mousemove', (e) => {
+  // Matikan parallax di mobile untuk jaga performa
+  if (window.innerWidth < 768) return; 
+  
+  const xAxis = (window.innerWidth / 2 - e.pageX) / 35;
+  const yAxis = (window.innerHeight / 2 - e.pageY) / 35;
+  mixtapeCard.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+});
+
+mainPageEl.addEventListener('mouseleave', () => {
+  mixtapeCard.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
+});
+
+// 3. INTERACTIVE ENVELOPE (SURAT)
+const envelopeWrapper = document.getElementById('envelope-wrapper');
+const envelopeFlap = document.getElementById('envelope-flap');
+const envelopeFront = document.getElementById('envelope-front');
+const letterContentWrapper = document.getElementById('letter-content-wrapper');
+
+let isEnvelopeOpened = false;
+
+envelopeWrapper.addEventListener('click', () => {
+  if (isEnvelopeOpened) return;
+  isEnvelopeOpened = true;
+
+  // 1. Buka Flap
+  envelopeFlap.classList.add('envelope-open-flap');
+  document.getElementById('envelope-text').classList.add('hidden');
+  
+  // 2. Hilangkan penutup depan amplop
+  setTimeout(() => {
+    envelopeFront.classList.add('envelope-fade-front');
+  }, 300);
+
+  // 3. Tarik Kertas ke atas & mulai animasi surat (stagger)
+  setTimeout(() => {
+    letterContentWrapper.classList.add('envelope-pull-letter');
+    
+    // Trigger animasi paragraf surat yang sudah ada di sistemmu
+    const lines = document.querySelectorAll('.letter-line, .letter-sign');
+    lines.forEach((line, i) => {
+      setTimeout(() => line.classList.add('line-revealed'), 400 + (i * 200));
+    });
+
+    // Tampilkan tombol penutup setelah surat selesai dibaca
+    const closingCard = document.querySelector('.closing-card');
+    const openBtn = document.getElementById('open-flower-btn');
+    const letterDelay = 400 + (lines.length * 200) + 400;
+
+    if (closingCard) { setTimeout(() => closingCard.classList.add('card-revealed'), letterDelay); }
+    if (openBtn) { setTimeout(() => openBtn.classList.add('btn-revealed'), letterDelay + 200); }
+
+  }, 800);
+});
+
+// Pastikan saat section message dibuka ulang, amplop tertutup kembali
+const originalOpenMessageSection = openMessageSection; // Ambil referensi fungsi lama
+window.openMessageSection = function() {
+  // Reset envelope
+  isEnvelopeOpened = false;
+  envelopeFlap.classList.remove('envelope-open-flap');
+  envelopeFront.classList.remove('envelope-fade-front');
+  letterContentWrapper.classList.remove('envelope-pull-letter');
+  document.getElementById('envelope-text').classList.remove('hidden');
+  
+  // Reset line-revealed
+  document.querySelectorAll('.letter-line, .letter-sign').forEach(el => el.classList.remove('line-revealed'));
+  const closingCard = document.querySelector('.closing-card');
+  const openBtn = document.getElementById('open-flower-btn');
+  if(closingCard) closingCard.classList.remove('card-revealed');
+  if(openBtn) openBtn.classList.remove('btn-revealed');
+
+  // Jalankan fungsi aslinya untuk show section (hilangkan animasi otomatis lamanya)
+  showSection(msgSection);
+  msgSection.scrollTop = 0;
+  if (stopMessageAmbient) stopMessageAmbient();
+  stopMessageAmbient = startAmbientPetals(msgSection, 5);
+}
+
+// 4. CLIMAX & LOVE COUNTER (Ganti fungsi Buka Bunga menjadi ke Outro)
+const sectionOutro = document.getElementById('section-outro');
+const btnBukaBunga = document.getElementById('open-flower-btn');
+let loveCounterInterval;
+
+const START_DATE = new Date('2007-12-02T00:00:00'); 
+
+function updateLoveCounter() {
+  const now = new Date();
+  const diff = now - START_DATE;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const mins = Math.floor((diff / 1000 / 60) % 60);
+
+  document.getElementById('count-days').textContent = days;
+  document.getElementById('count-hours').textContent = hours;
+  document.getElementById('count-mins').textContent = mins;
+}
+
+// Timpa event listener bawaan untuk tombol Buka Bunga
+btnBukaBunga.removeEventListener('click', openFlowerModal); 
+btnBukaBunga.addEventListener('click', () => {
+  sceneTransition(() => {
+    hideSection(msgSection);
+    showSection(sectionOutro);
+    
+    // Mulai animasi Counter & Teks setelah section terbuka
+    setTimeout(() => {
+      document.getElementById('love-counter-box').classList.remove('translate-y-4', 'opacity-0');
+      document.getElementById('outro-final-text').classList.remove('opacity-0');
+      
+      updateLoveCounter();
+      loveCounterInterval = setInterval(updateLoveCounter, 60000); // Update tiap 1 menit
+    }, 1000);
+  });
+});

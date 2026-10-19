@@ -137,6 +137,39 @@
     </div>
   </section>
 
+<!-- ========== 2b. HALAMAN INTRO (TYPING STORY) ========== -->
+  <section id="section-intro" class="hidden-section fixed inset-0 z-40 flex items-center justify-center bg-bgdark px-6 cursor-pointer">
+    <div class="max-w-md w-full text-center">
+      <p id="typing-container" class="font-display italic text-2xl sm:text-3xl text-cream leading-relaxed min-h-[120px]"></p>
+      <p id="skip-hint" class="text-rose/50 text-xs mt-8 opacity-0 transition-opacity duration-1000 tracking-widest uppercase">
+        Ketuk layar untuk melanjutkan
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== 2c. SECTION MEMORY (FLASHBACK) ========== -->
+  <section id="section-memory" class="hidden-section fixed inset-0 z-40 flex flex-col items-center justify-center bg-[#0A0807] px-6">
+    <!-- Ambient glow di belakang video -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(214,166,160,0.1)_0%,transparent_60%)] pointer-events-none"></div>
+    
+    <div class="relative z-10 flex flex-col items-center w-full max-w-sm">
+      <p class="font-display italic text-rose/80 text-xl mb-6 opacity-0 translate-y-4 transition-all duration-1000 delay-300" id="mem-text-1">Sebelum melangkah lebih jauh...</p>
+      
+      <!-- Frame Video Vintage -->
+      <div class="relative w-full aspect-[4/5] bg-[#1A1512] border border-gold/30 rounded-sm p-2 shadow-[0_0_40px_rgba(201,166,107,0.15)] opacity-0 scale-95 transition-all duration-1000 delay-700" id="mem-video-frame">
+        <video src="assets/video/memory.mp4" autoplay loop muted playsinline class="w-full h-full object-cover filter sepia-[0.3] contrast-[1.1] brightness-[0.8]"></video>
+        <!-- Scratch overlay untuk efek vintage film -->
+        <div class="absolute inset-0 pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxmaWx0ZXIgaWQ9Im4iPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjk5IiBydW1PY3RhdmVzPSIyIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI24pIiBvcGFjaXR5PSIwLjA4IiBtaXgtYmxlbmQtbW9kZT0ib3ZlcmxheSIvPjwvc3ZnPg==')]"></div>
+      </div>
+      
+      <p class="font-script text-cream/90 text-2xl mt-6 opacity-0 translate-y-4 transition-all duration-1000 delay-1000" id="mem-text-2">Banyak hal yang sudah kita lewati.</p>
+      
+      <button id="btn-lanjut-memory" class="mt-10 px-8 py-3 bg-transparent border border-gold/50 text-gold text-sm font-body tracking-widest uppercase rounded-full hover:bg-gold/10 transition-all opacity-0 translate-y-4 duration-1000 delay-[1500ms]">
+        Lanjutkan Perjalanan Ini ❤️
+      </button>
+    </div>
+  </section>
+
   <!-- ========== 3. HALAMAN UTAMA (MAIN MENU - VINTAGE MIXTAPE) ========== -->
   <section id="main-page" class="hidden-section fixed inset-0 z-30 flex items-center justify-center px-4 py-6 overflow-y-auto">
     <div class="w-full max-w-xs sm:max-w-md bg-[#FAF4EA] text-[#4A3B32] border-2 border-[#D6A6A0]/50 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.55),0_0_35px_rgba(214,166,160,0.15)] p-5 sm:p-7 relative overflow-hidden my-auto backdrop-blur-md">
@@ -201,7 +234,7 @@
               <span class="font-mono text-xs text-[#A66E68] font-bold">01</span>
               <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate transition-colors">Perfect – Ed Sheeran</span>
             </div>
-            <span class="text-[10px] px-2.5 py-0.5 bg-[#A9B99A]/25 text-[#4E5E40] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Kalender</span>
+            <span class="text-[10px] px-2.5 py-0.5 bg-[#A9B99A]/25 text-[#4E5E40] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Track 01</span>
           </button>
 
           <!-- Track 02 -->
@@ -210,7 +243,7 @@
               <span class="font-mono text-xs text-[#A66E68] font-bold">02</span>
               <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate transition-colors">All of Me – John Legend</span>
             </div>
-            <span class="text-[10px] px-2.5 py-0.5 bg-[#D6A6A0]/25 text-[#8C4A44] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Galeri</span>
+            <span class="text-[10px] px-2.5 py-0.5 bg-[#D6A6A0]/25 text-[#8C4A44] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Track 02</span>
           </button>
 
           <!-- Track 03 -->
@@ -219,7 +252,7 @@
               <span class="font-mono text-xs text-[#A66E68] font-bold">03</span>
               <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate transition-colors">Lover – Taylor Swift</span>
             </div>
-            <span class="text-[10px] px-2.5 py-0.5 bg-[#C9A66B]/25 text-[#7A5B28] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Surat</span>
+            <span class="text-[10px] px-2.5 py-0.5 bg-[#C9A66B]/25 text-[#7A5B28] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Track 03</span>
           </button>
         </div>
       </div>
@@ -347,56 +380,103 @@
   </section>
 
   <!-- ========== 4c. SECTION WISH (PILIH PERMOHONAN) ========== -->
-  <section id="section-wish" class="hidden-section fixed inset-0 z-40 wish-bg overflow-y-auto">
-
-    <button id="wish-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
+  <section id="section-wish" class="hidden-section fixed inset-0 z-40 wish-magical-bg overflow-hidden flex flex-col items-center justify-between py-8 px-4 select-none">
+    
+    <!-- Tombol Kembali -->
+    <button id="wish-back-btn" class="back-btn z-50" type="button" aria-label="Kembali ke menu">
       <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Kembali</span>
     </button>
 
-    <div class="wish-page-inner">
-      <p class="wishes-eyebrow">Satu Permohonan</p>
-      <h2 class="wishes-heading">Sekarang... pilih satu wish untuk tahun barumu.</h2>
-      <div id="wishes-container" class="wish-tag-grid"></div>
+    <!-- Header Title -->
+    <div id="wish-header" class="text-center transition-all duration-700 relative z-10 mt-10">
+      <p class="font-body text-xs tracking-[0.35em] text-rose/80 uppercase mb-2">Satu Permohonan</p>
+      <h2 class="font-display text-2xl sm:text-3xl text-cream font-semibold leading-snug px-4 drop-shadow-md">
+        Pilih satu doa untuk ditiupkan ke bintang malam...
+      </h2>
     </div>
 
-    <!-- Popup konfirmasi setelah wish dipilih -->
-    <div id="wish-popup" class="wish-popup hidden-section">
-      <p class="wish-popup-text">Wish diterima. Semoga pelan-pelan jadi nyata ya sayang ♡</p>
+    <!-- Arena Wishe Coordinates (Absolute Space) -->
+    <div id="wishes-container" class="relative w-full max-w-md h-[55vh] sm:h-[50vh] pointer-events-auto my-auto">
+      <!-- Cards di-render via JavaScript dengan koordinat absolut -->
     </div>
+
+    <!-- Footer Hint -->
+    <p id="wish-footer-hint" class="font-script text-lg text-cream/70 transition-opacity duration-500 mb-6">
+      Ketuk pelan salah satu lentera permohonan ✨
+    </p>
+
+    <!-- Modal Konfirmasi Magis -->
+    <div id="wish-popup" class="wish-popup hidden-section fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+      <div id="wish-popup-backdrop" class="absolute inset-0 bg-[#080504]/75 backdrop-blur-md opacity-0 transition-opacity duration-1000"></div>
+      <div id="wish-popup-card" class="relative z-10 max-w-xs sm:max-w-sm mx-4 p-8 rounded-3xl bg-[#1C1512]/95 border border-gold/40 shadow-[0_0_50px_rgba(201,166,107,0.3)] text-center opacity-0 scale-90 translate-y-6 transition-all duration-1000">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-rose/15 border border-rose/30 flex items-center justify-center text-rose text-xl shadow-[0_0_20px_rgba(214,166,160,0.3)]">
+          ✦
+        </div>
+        <h3 class="font-display text-2xl text-cream font-bold mb-2 tracking-wide">Harapan Diterima</h3>
+        <p id="wish-popup-text" class="font-body text-sm text-cream/80 leading-relaxed">
+          Doa ini sudah melebur bersama malam.<br>Semoga pelan-pelan menemukan jalannya ya, sayang ♡
+        </p>
+      </div>
+    </div>
+
   </section>
 
-  <!-- ========== 5. SECTION GALLERY (GALERI LOVE) ========== -->
-  <section id="section-gallery" class="hidden-section fixed inset-0 z-40 gallery-bg overflow-hidden">
+  <!-- ========== 5. SECTION GALLERY (MEMORY EXHIBITION) ========== -->
+  <section id="section-gallery" class="hidden-section fixed inset-0 z-40 gallery-exhibition-bg overflow-y-auto overflow-x-hidden">
 
-    <button id="gallery-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
+    <!-- Tombol Kembali -->
+    <button id="gallery-back-btn" class="back-btn z-50 fixed top-5 left-5" type="button" aria-label="Kembali ke menu">
       <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Kembali</span>
     </button>
 
-    <!-- Arena absolut tempat foto-foto bergerak membentuk hati -->
-    <div id="gallery-heart-arena" class="gallery-heart-arena" aria-label="Galeri foto berbentuk hati"></div>
+    <div class="exhibition-wrapper max-w-4xl mx-auto px-4 py-20 sm:py-28 flex flex-col items-center">
+      
+      <!-- Opening Exhibition Quote -->
+      <header class="exhibition-intro text-center mb-16 sm:mb-24 max-w-lg">
+        <span class="text-[10px] sm:text-xs tracking-[0.35em] text-gold/80 uppercase font-semibold block mb-3">Memory Exhibition</span>
+        <h2 class="font-display italic text-2xl sm:text-4xl text-cream font-normal leading-relaxed drop-shadow">
+          "Beberapa kenangan layak disimpan selamanya."
+        </h2>
+        <div class="w-12 h-[1px] bg-gradient-to-r from-transparent via-gold/50 to-transparent mx-auto mt-6"></div>
+      </header>
 
-    <!-- Tipografi di bawah formasi hati -->
-    <div id="gallery-caption" class="gallery-caption hidden-section">
-      <p class="gallery-caption-eyebrow">Happy Birthday</p>
-      <h2 class="gallery-caption-heading">Isma Saskina.</h2>
-      <p class="gallery-caption-sub">Hari ini kamu wajib dirayakan.</p>
+      <!-- Container Pameran (Diisi via JS) -->
+      <div id="exhibition-container" class="w-full flex flex-col gap-16 sm:gap-28"></div>
+
+      <!-- Outro Section & Tombol Lanjut -->
+      <footer id="exhibition-footer" class="mt-24 sm:mt-32 text-center opacity-0 transition-opacity duration-1000">
+        <p class="font-script text-2xl sm:text-3xl text-rose mb-8">Setiap detik bersamamu adalah karya terbaik.</p>
+        <button id="gallery-letter-btn" class="exhibition-cta-btn inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-rose-dark via-gold to-rose-dark text-bgdark font-body font-bold text-sm sm:text-base tracking-wider uppercase shadow-[0_10px_30px_rgba(201,166,107,0.3)] hover:scale-105 active:scale-95 transition-all duration-300" type="button">
+          <span>Lanjut ke Surat</span>
+          <svg viewBox="0 0 20 20" class="w-4 h-4 fill-current" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </footer>
+
     </div>
 
-    <!-- Tombol ke Fase 4 (Pesan) -->
-    <button id="gallery-letter-btn" class="gallery-letter-btn hidden-section group" type="button">
-      <span>Ada satu surat buat kamu</span>
-      <svg viewBox="0 0 20 20" class="w-4 h-4 inline-block ml-1 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 10h12M11 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+  </section>
+
+  <!-- LIGHTBOX / ZOOM MODAL -->
+  <div id="lightbox" class="lightbox hidden-section" role="dialog" aria-modal="true" aria-label="Tampilan foto besar">
+    <button id="lightbox-close" class="lightbox-close" type="button" aria-label="Tutup">
+      <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/>
       </svg>
     </button>
-
-  </section>
+    <div class="lightbox-backdrop" id="lightbox-backdrop"></div>
+    <div class="relative z-10 max-w-3xl max-h-[85vh] p-2">
+      <img id="lightbox-img" class="lightbox-img rounded-sm shadow-2xl border border-gold/30" src="" alt="Foto Pameran" />
+      <p id="lightbox-caption" class="font-display italic text-cream/90 text-center text-sm sm:text-base mt-3"></p>
+    </div>
+  </div>
 
   <!-- ========== LIGHTBOX ========== -->
   <div id="lightbox" class="lightbox hidden-section" role="dialog" aria-modal="true" aria-label="Tampilan foto besar">
@@ -424,20 +504,26 @@
       <!-- Eyebrow label -->
       <p class="msg-eyebrow">Surat Kecil</p>
 
-      <!-- Kertas surat vintage -->
-      <article class="letter-paper" aria-label="Isi surat">
-        <p class="letter-line">Hari ini mungkin cuma satu tanggal di kalender, tapi buat orang-orang yang sayang sama kamu, hari ini tetap punya arti.</p>
-
-        <p class="letter-line">Kamu tumbuh jadi versi dirimu yang lebih kuat dari yang kamu sadari. Tiap kali kamu memilih untuk terus maju meskipun berat, itu bukan hal kecil — itu luar biasa.</p>
-
-        <p class="letter-line">Semoga tahun ini kamu lebih sering ketawa, lebih jarang merasa sendirian, dan lebih banyak ketemu hal-hal baik yang selama ini kamu tunggu.</p>
-
-        <p class="letter-line">Semoga kamu selalu punya alasan untuk tersenyum, bahkan di hari-hari yang terasa biasa saja. Dan kalau nggak ada alasannya — semoga kamu ingat bahwa kehadiranmu sendiri sudah cukup jadi alasannya.</p>
-
-        <p class="letter-line">Terima kasih sudah tetap jadi kamu.</p>
-
-        <p class="letter-sign">— Aku</p>
-      </article>
+      <!-- Interactive Envelope -->
+      <div id="envelope-wrapper" class="relative w-full max-w-[520px] cursor-pointer group">
+        <!-- Flap Amplop (Penutup Atas) -->
+        <div id="envelope-flap" class="absolute top-0 left-0 w-full h-[50%] bg-[#D6A6A0] z-30 origin-top transition-transform duration-700" style="clip-path: polygon(0 0, 100% 0, 50% 100%);"></div>
+        <!-- Badan Amplop Depan -->
+        <div id="envelope-front" class="absolute inset-0 bg-[#C9A66B] z-20 rounded-lg shadow-xl flex items-center justify-center transition-opacity duration-700" style="clip-path: polygon(0 0, 0% 100%, 100% 100%, 100% 0, 50% 50%);">
+           <span id="envelope-text" class="font-script text-3xl text-[#4A3520] mt-12 animate-pulse">Buka Suratnya...</span>
+        </div>
+        <!-- Kertas surat vintage (Disembunyikan di dalam amplop dulu) -->
+        <div id="letter-content-wrapper" class="opacity-0 translate-y-12 transition-all duration-1000 z-10 relative">
+          <article class="letter-paper" aria-label="Isi surat">
+            <p class="letter-line">Hari ini mungkin cuma satu tanggal di kalender, tapi buat orang-orang yang sayang sama kamu, hari ini tetap punya arti.</p>
+            <p class="letter-line">Kamu tumbuh jadi versi dirimu yang lebih kuat dari yang kamu sadari. Tiap kali kamu memilih untuk terus maju meskipun berat, itu bukan hal kecil — itu luar biasa.</p>
+            <p class="letter-line">Semoga tahun ini kamu lebih sering ketawa, lebih jarang merasa sendirian, dan lebih banyak ketemu hal-hal baik yang selama ini kamu tunggu.</p>
+            <p class="letter-line">Semoga kamu selalu punya alasan untuk tersenyum, bahkan di hari-hari yang terasa biasa saja. Dan kalau nggak ada alasannya — semoga kamu ingat bahwa kehadiranmu sendiri sudah cukup jadi alasannya.</p>
+            <p class="letter-line">Terima kasih sudah tetap jadi kamu.</p>
+            <p class="letter-sign">— Apiep</p>
+          </article>
+        </div>
+      </div>
 
       <!-- Kartu penutup dark glassmorphism -->
       <div class="closing-card">
@@ -530,6 +616,32 @@
     <div id="flower-transition-backdrop" class="flower-transition-backdrop"></div>
     <div id="flower-transition-stage" class="flower-transition-stage"></div>
   </div>
+
+  <!-- ========== 8. SECTION OUTRO (CLIMAX & LOVE COUNTER) ========== -->
+  <section id="section-outro" class="hidden-section fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0E0A08] overflow-hidden px-6">
+    <div class="absolute inset-0 pointer-events-none opacity-30 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D6A6A0] via-transparent to-transparent"></div>
+    
+    <div class="relative z-10 text-center max-w-md w-full">
+      <p class="font-display italic text-2xl sm:text-3xl text-[#D6A6A0] mb-10 tracking-wide fade-in">Dan cerita ini masih terus berjalan...</p>
+      
+      <div id="love-counter-box" class="flex justify-center gap-6 sm:gap-10 text-cream font-body mb-12 opacity-0 transition-opacity duration-1000 translate-y-4">
+        <div class="flex flex-col items-center">
+          <span id="count-days" class="text-4xl sm:text-6xl font-bold text-[#C9A66B] drop-shadow-[0_0_15px_rgba(201,166,107,0.4)]">0</span>
+          <span class="text-[10px] sm:text-xs tracking-widest uppercase text-cream/50 mt-2">Hari</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span id="count-hours" class="text-4xl sm:text-6xl font-bold text-[#C9A66B] drop-shadow-[0_0_15px_rgba(201,166,107,0.4)]">0</span>
+          <span class="text-[10px] sm:text-xs tracking-widest uppercase text-cream/50 mt-2">Jam</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span id="count-mins" class="text-4xl sm:text-6xl font-bold text-[#C9A66B] drop-shadow-[0_0_15px_rgba(201,166,107,0.4)]">0</span>
+          <span class="text-[10px] sm:text-xs tracking-widest uppercase text-cream/50 mt-2">Menit</span>
+        </div>
+      </div>
+      
+      <p id="outro-final-text" class="font-script text-4xl sm:text-5xl text-cream mt-6 opacity-0 transition-opacity duration-1000 delay-500">I love you, Isma.</p>
+    </div>
+  </section>
 
   <!-- Overlay transisi antar scene fallback -->
   <div id="scene-transition"></div>

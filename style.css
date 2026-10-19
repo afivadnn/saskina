@@ -2516,3 +2516,340 @@ button {
   pointer-events: none;
 }
 
+/* ==========================================================
+   TAMBAHAN: UX & PREMIUM FEEL UPGRADES
+   ========================================================== */
+
+/* 1. Polaroid Effect untuk Gallery */
+.heart-tile {
+  background: #F3E8D8 !important; /* Warna kertas polaroid */
+  padding: 4px 4px 18px 4px !important; /* Frame putih polaroid */
+  border-radius: 3px !important; /* Sedikit kaku layaknya foto fisik */
+}
+.heart-tile-img {
+  border-radius: 1px !important; 
+}
+.heart-tile-overlay {
+  display: none; /* Matikan frosted glass agar tidak tabrakan dengan polaroid */
+}
+
+/* 2. Interactive Envelope Animation */
+.envelope-open-flap {
+  transform: rotateX(180deg);
+  z-index: 1 !important;
+}
+.envelope-fade-front {
+  opacity: 0;
+  pointer-events: none;
+}
+.envelope-pull-letter {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* 3. Blinking Cursor untuk Typing Story */
+.typing-cursor::after {
+  content: '|';
+  animation: blink 1s step-start infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ==========================================================
+   WISH SECTION: ABSOLUTE COORDINATE MOTION DESIGN
+   ========================================================== */
+
+.wish-magical-bg {
+  background: radial-gradient(ellipse at 50% 40%, #1c0e14 0%, #0c0609 60%, #050304 100%);
+}
+
+/* Base Wish Card: Memakai Absolute Positioning berdasarkan % */
+.wish-card-item {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(1);
+  width: min(82vw, 240px);
+  padding: 1.25rem 1rem;
+  background: linear-gradient(145deg, rgba(255, 245, 235, 0.08) 0%, rgba(214, 166, 160, 0.03) 100%);
+  border: 1px solid rgba(214, 166, 160, 0.25);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.4s ease,
+              box-shadow 0.4s ease;
+  will-change: transform, opacity;
+}
+
+.wish-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.wish-card-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.05rem, 3.8vw, 1.2rem);
+  font-style: italic;
+  font-weight: 600;
+  color: #F3E8D8;
+  line-height: 1.3;
+}
+
+/* Floating Breathing Animation */
+.wish-card-item.is-idle {
+  animation: wishBreathing 5s ease-in-out infinite alternate;
+}
+
+@keyframes wishBreathing {
+  0% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
+  50% { transform: translate(-50%, -50%) translateY(-6px) rotate(0.8deg); }
+  100% { transform: translate(-50%, -50%) translateY(4px) rotate(-0.8deg); }
+}
+
+/* Hover State */
+.wish-card-item:hover {
+  border-color: rgba(214, 166, 160, 0.7);
+  box-shadow: 0 12px 40px rgba(214, 166, 160, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* STATE 1: Wish yang TIDAK dipilih memudar lembut di tempatnya */
+.wish-card-item.is-fading {
+  opacity: 0 !important;
+  transform: translate(-50%, -50%) scale(0.9) !important;
+  pointer-events: none;
+  transition: opacity 0.8s ease, transform 0.8s ease !important;
+}
+
+/* STATE 2: Wish yang DIPILIH naik, bersinar, dan melayang menjadi cahaya */
+.wish-card-item.is-selected {
+  z-index: 30;
+  pointer-events: none;
+  animation: wishAcceptance 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+@keyframes wishAcceptance {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    filter: brightness(1);
+    box-shadow: 0 0 20px rgba(214, 166, 160, 0.3);
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1.08);
+    border-color: #E8C97A;
+    filter: brightness(1.5);
+    box-shadow: 0 0 40px rgba(232, 201, 122, 0.8), 0 0 80px rgba(214, 166, 160, 0.5);
+  }
+  70% {
+    transform: translate(-50%, -120px) scale(1.15);
+    opacity: 0.9;
+    filter: brightness(2.2);
+    box-shadow: 0 0 60px rgba(255, 255, 255, 0.9);
+  }
+  100% {
+    transform: translate(-50%, -220px) scale(0.2);
+    opacity: 0;
+    filter: brightness(3) blur(8px);
+  }
+}
+
+/* Partikel Bintang Cahaya */
+.wish-sparkle-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFFDF9 0%, #E8C97A 60%, transparent 100%);
+  animation: sparkleBurst 1.2s ease-out forwards;
+}
+
+@keyframes sparkleBurst {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================
+   MEMORY EXHIBITION GALLERY (MOBILE-FIRST TO DESKTOP)
+   ========================================================== */
+
+/* Latar belakang museum pekat bernuansa hangat */
+.gallery-exhibition-bg {
+  background: radial-gradient(ellipse at 50% 20%, #241D18 0%, #17120F 60%, #0E0B09 100%);
+  color: #F3E8D8;
+}
+
+/* Item Pameran Base State */
+.exhibit-item {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.exhibit-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Bingkai Foto Pameran */
+.exhibit-frame {
+  position: relative;
+  background: #332A23;
+  border: 1px solid rgba(201, 166, 107, 0.25);
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+.exhibit-frame:hover {
+  border-color: rgba(201, 166, 107, 0.7);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 20px rgba(201, 166, 107, 0.2);
+  transform: scale(1.01);
+}
+
+.exhibit-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.92) contrast(1.03);
+  transition: filter 0.5s ease;
+}
+
+.exhibit-frame:hover .exhibit-img {
+  filter: brightness(1) contrast(1.05);
+}
+
+/* Plakat Informasi Pameran */
+.exhibit-plaque {
+  background: rgba(51, 42, 35, 0.85);
+  border: 1px solid rgba(201, 166, 107, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 1rem 1.25rem;
+  border-radius: 4px;
+  margin-top: -1rem;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.exhibit-tag {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: #C9A66B;
+  text-transform: uppercase;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.exhibit-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #F3E8D8;
+  line-height: 1.2;
+}
+
+.exhibit-desc {
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  color: #D6A6A0;
+  margin-top: 0.35rem;
+  line-height: 1.3;
+}
+
+/* VARIASI TIPE LAYOUT (MOBILE FIRST) */
+
+/* 1. Feature Hero */
+.layout-feature-hero .exhibit-frame {
+  aspect-ratio: 4/3;
+}
+
+/* 2. Portrait Single */
+.layout-portrait-single {
+  max-width: 85%;
+  margin: 0 auto;
+}
+.layout-portrait-single .exhibit-frame {
+  aspect-ratio: 3/4;
+}
+
+/* 3. Landscape Wide */
+.layout-landscape-wide .exhibit-frame {
+  aspect-ratio: 16/9;
+}
+
+/* 4. Dual Stagger (Stack di Mobile) */
+.layout-dual-stagger {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* 5. Climax Piece (Foto Ke-15) */
+.layout-climax {
+  width: 100%;
+}
+.layout-climax .exhibit-frame {
+  aspect-ratio: 4/5;
+  border: 1.5px solid #C9A66B;
+  box-shadow: 0 0 35px rgba(201, 166, 107, 0.3), 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+.layout-climax .exhibit-plaque {
+  border-color: #C9A66B;
+  text-align: center;
+}
+
+/* ==========================================================
+   MEDIA QUERIES (TABLET & DESKTOP)
+   ========================================================== */
+
+@media (min-width: 640px) {
+  .exhibit-title { font-size: 1.4rem; }
+  .exhibit-desc { font-size: 1.25rem; }
+}
+
+@media (min-width: 768px) {
+  /* Offset & Variation Layouts di Desktop */
+  .layout-portrait-single {
+    max-width: 65%;
+  }
+  
+  .layout-dual-stagger {
+    flex-direction: row;
+    align-items: center;
+  }
+  .layout-dual-stagger .dual-item-1 {
+    width: 55%;
+    transform: translateY(-20px);
+  }
+  .layout-dual-stagger .dual-item-2 {
+    width: 50%;
+    margin-left: -10%;
+    margin-top: 40px;
+  }
+
+  .layout-feature-hero .exhibit-frame {
+    aspect-ratio: 16/10;
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout-portrait-single {
+    max-width: 55%;
+  }
+}
