@@ -203,8 +203,8 @@ button {
 .pin-dot.filled {
   background: linear-gradient(135deg, #D6A6A0 0%, #C9A66B 100%);
   border-color: #D6A6A0;
-  box-shadow: 0 0 10px 1px rgba(214, 166, 160, 0.5);
-  transform: scale(1.15);
+  box-shadow: 0 0 12px 2px rgba(214, 166, 160, 0.75), 0 0 24px 4px rgba(201, 166, 107, 0.35);
+  transform: scale(1.18);
 }
 
 /* Grid numpad — lebar fluid, tidak pernah lebih lebar dari card, tidak pernah kepotong */
@@ -216,34 +216,39 @@ button {
   margin: 0 auto;
 }
 
-/* Tombol numpad — glass gelap serasi tema, bukan lagi kotak putih/pink */
+/* Tombol numpad — glass gelap serasi tema */
 .numpad-btn {
   aspect-ratio: 1 / 1;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%),
-              rgba(20, 12, 16, 0.35);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%),
+              rgba(36, 29, 24, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1.5px solid rgba(214, 166, 160, 0.25);
-  border-radius: 1rem;
+  border-radius: 1.15rem;
   color: #F3E8D8;
   font-family: 'Nunito', sans-serif;
-  font-size: clamp(1.1rem, 4.5vw, 1.35rem);
-  font-weight: 600;
+  font-size: clamp(1.15rem, 4.5vw, 1.4rem);
+  font-weight: 700;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.12s ease;
+    background 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .numpad-btn:hover,
 .numpad-btn:focus-visible {
-  border-color: rgba(214, 166, 160, 0.6);
-  box-shadow: 0 0 0 3px rgba(214, 166, 160, 0.12);
+  background: linear-gradient(150deg, rgba(214, 166, 160, 0.2) 0%, rgba(201, 166, 107, 0.1) 100%);
+  border-color: rgba(214, 166, 160, 0.7);
+  box-shadow: 0 0 0 3px rgba(214, 166, 160, 0.2), 0 8px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .numpad-btn:focus-visible {
@@ -252,45 +257,48 @@ button {
 
 /* Efek tekan pada tombol */
 .numpad-btn:active {
-  background: linear-gradient(150deg, rgba(214, 166, 160, 0.22) 0%, rgba(214, 166, 160, 0.1) 100%);
+  background: linear-gradient(150deg, rgba(214, 166, 160, 0.35) 0%, rgba(201, 166, 107, 0.2) 100%);
   border-color: #D6A6A0;
-  transform: scale(0.94);
-  transition-duration: 0.08s;
+  transform: scale(0.92);
+  transition-duration: 0.06s;
 }
 
 .action-btn {
   color: #D6A6A0;
 }
 
-/* Sel kosong di grid (kiri tombol 0) — tidak perlu style, hanya menjaga posisi grid */
+/* Sel kosong di grid (kiri tombol 0) */
 .numpad-cell-empty {
   aspect-ratio: 1 / 1;
 }
 
-/* Tombol submit "Buka" — dipisah dari markup form supaya bebas dari sisa util Tailwind lama */
+/* Tombol submit "Buka Kado" */
 .pin-submit-btn {
   width: 100%;
-  background: linear-gradient(135deg, #D6A6A0 0%, #C9A66B 100%);
+  background: linear-gradient(135deg, #D6A6A0 0%, #C9A66B 50%, #E8C97A 100%);
+  background-size: 200% auto;
   color: #241D18;
   font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
   border: none;
-  border-radius: 0.9rem;
-  padding: 0.85rem 1rem;
+  border-radius: 1.1rem;
+  padding: 0.95rem 1.25rem;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(214, 166, 160, 0.25);
-  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 8px 28px rgba(214, 166, 160, 0.35), 0 0 15px rgba(201, 166, 107, 0.25);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-position 0.4s ease;
 }
 
 .pin-submit-btn:hover,
 .pin-submit-btn:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(214, 166, 160, 0.35);
+  transform: translateY(-2px) scale(1.02);
+  background-position: right center;
+  box-shadow: 0 12px 35px rgba(214, 166, 160, 0.5), 0 0 25px rgba(201, 166, 107, 0.4);
 }
 
 .pin-submit-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
   transition-duration: 0.08s;
 }
 
@@ -299,7 +307,7 @@ button {
   outline-offset: 3px;
 }
 
-/* Layar sangat sempit (HP kecil, ~320-360px) — rapatkan sedikit tanpa memotong apa pun */
+/* Layar sangat sempit (HP kecil, ~320-360px) */
 @media (max-width: 360px) {
   .numpad-grid {
     gap: 0.5rem;
@@ -310,125 +318,18 @@ button {
 }
 
 /* ==========================================================
-   3. HALAMAN UTAMA — MENU IKON
+   3. HALAMAN UTAMA — MAIN MENU DEPTH
    ========================================================== */
 
 /* Main menu card depth */
 #main-page > div {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.5),
-    0 16px 48px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(201, 166, 107, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.menu-icon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem 0.25rem;
-  color: #F3E8D8;
-  font-family: inherit;
-}
-
-.menu-icon-circle {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background: rgba(169, 185, 154, 0.12);
-  border: 1px solid rgba(201, 166, 107, 0.35);
-  color: #A9B99A;
-  transition:
-    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    border-color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    box-shadow 0.22s cubic-bezier(0.65, 0, 0.35, 1);
-  /* Entrance: start hidden — stagger applied via nth-child below */
-  opacity: 0;
-  transform: translateY(10px) scale(0.88);
-}
-
-/* Staggered entrance for each icon — 100ms apart */
-.menu-icon:nth-child(1) .menu-icon-circle { animation: menuIconIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s both; }
-.menu-icon:nth-child(2) .menu-icon-circle { animation: menuIconIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both; }
-.menu-icon:nth-child(3) .menu-icon-circle { animation: menuIconIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both; }
-
-.menu-icon:nth-child(1) .menu-label { animation: menuLabelIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both; }
-.menu-icon:nth-child(2) .menu-label { animation: menuLabelIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.22s both; }
-.menu-icon:nth-child(3) .menu-label { animation: menuLabelIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.32s both; }
-
-@keyframes menuIconIn {
-  from { opacity: 0; transform: translateY(10px) scale(0.88); }
-  to   { opacity: 1; transform: translateY(0)    scale(1); }
-}
-
-@keyframes menuLabelIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@media (min-width: 640px) {
-  .menu-icon-circle {
-    width: 64px;
-    height: 64px;
-  }
-}
-
-.menu-icon:hover .menu-icon-circle,
-.menu-icon:focus-visible .menu-icon-circle {
-  background: rgba(214, 166, 160, 0.18);
-  border-color: #D6A6A0;
-  color: #D6A6A0;
-  /* Scale up + subtle clockwise tilt + glow ring */
-  transform: translateY(-3px) scale(1.06) rotate(3deg);
-  box-shadow:
-    0 0 0 4px rgba(214, 166, 160, 0.18),
-    0 0 16px 2px rgba(214, 166, 160, 0.18),
-    0 6px 14px rgba(0, 0, 0, 0.25);
-}
-
-.menu-icon:active .menu-icon-circle {
-  transform: translateY(0) scale(0.94) rotate(-1deg);
-  transition-duration: 0.08s;
-}
-
-.menu-label {
-  font-size: 0.75rem;
-  letter-spacing: 0.02em;
-  color: rgba(243, 232, 216, 0.75);
-  /* Hidden until stagger animation fires */
-  opacity: 0;
-}
-
-.menu-icon:focus-visible {
-  outline: 2px solid #D6A6A0;
-  outline-offset: 4px;
-  border-radius: 12px;
-}
-
-/* ==========================================================
-   4. SECTION CAKE — STAGE, LILIN, WISHES
-   ========================================================== */
-.cake-stage-bg {
-  background: linear-gradient(180deg, #3a1f2a 0%, #1a0d14 40%, #0E0A08 100%);
-  transition: background 1.4s cubic-bezier(0.65, 0, 0.35, 1);
-  position: relative;
-}
-
-/* State "terang" — dipicu class .lit di #section-cake, tetap dalam
-   palet tema (amber gelap), bukan putih polos, biar gak pecah identitas visual */
-.cake-stage-bg.lit {
-  background-color: #4A3524;
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    0 20px 60px rgba(0, 0, 0, 0.55),
+    0 0 35px rgba(214, 166, 160, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .back-btn {
@@ -437,31 +338,37 @@ button {
   left: 1.25rem;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  background: rgba(51, 42, 35, 0.6);
-  border: 1px solid rgba(201, 166, 107, 0.3);
+  gap: 0.4rem;
+  background: rgba(51, 42, 35, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(201, 166, 107, 0.35);
   color: #F3E8D8;
-  font-size: 0.8rem;
-  padding: 0.45rem 0.9rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
   border-radius: 9999px;
   cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   transition:
-    background 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    border-color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.65, 0, 0.35, 1);
+    background 0.2s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.2s cubic-bezier(0.65, 0, 0.35, 1),
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 20;
 }
 
 .back-btn:hover,
 .back-btn:focus-visible {
-  background: rgba(51, 42, 35, 0.9);
+  background: rgba(51, 42, 35, 0.95);
   border-color: #D6A6A0;
-  transform: scale(1.04);
-  box-shadow: 0 0 0 3px rgba(214, 166, 160, 0.15);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(214, 166, 160, 0.3);
 }
 
 .back-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
   transition-duration: 0.08s;
 }
 
@@ -1306,45 +1213,54 @@ button {
 /* Tombol surat */
 .gallery-letter-btn {
   position: fixed;
-  bottom: 1.5rem;
+  bottom: 1.75rem;
   right: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  background: rgba(36, 29, 24, 0.8);
-  border: 1px solid rgba(214, 166, 160, 0.45);
-  color: #F3E8D8;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, #D6A6A0 0%, #C9A66B 50%, #E8C97A 100%);
+  background-size: 200% auto;
+  border: none;
+  color: #241D18;
   font-family: 'Nunito', sans-serif;
-  font-size: 0.82rem;
-  padding: 0.65rem 1.2rem;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 0.75rem 1.4rem;
   border-radius: 9999px;
   cursor: pointer;
-  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 30px rgba(214, 166, 160, 0.45), 0 0 20px rgba(201, 166, 107, 0.3);
+  backdrop-filter: blur(8px);
   transition:
-    background 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    border-color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.65, 0, 0.35, 1);
-  z-index: 10;
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    background-position 0.4s ease;
+  z-index: 20;
   /* Starts hidden; JS adds .revealed class after caption stagger */
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(12px);
 }
 
 .gallery-letter-btn.revealed {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .gallery-letter-btn:hover,
 .gallery-letter-btn:focus-visible {
-  background: rgba(214, 166, 160, 0.18);
-  border-color: #D6A6A0;
-  transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 0 0 3px rgba(214, 166, 160, 0.15);
+  transform: translateY(-3px) scale(1.05);
+  background-position: right center;
+  box-shadow:
+    0 0 0 4px rgba(214, 166, 160, 0.25),
+    0 12px 36px rgba(214, 166, 160, 0.6),
+    0 0 25px rgba(201, 166, 107, 0.5);
+}
+
+.gallery-letter-btn:active {
+  transform: scale(0.96);
+  transition-duration: 0.08s;
 }
 
 .gallery-letter-btn:focus-visible {
@@ -1431,8 +1347,177 @@ button {
 }
 
 /* ==========================================================
-   TRANSISI ANTAR SECTION — overlay hitam fade in/out
-   + section baru masuk dengan scale 0.98 → 1
+   FLOWER CURTAIN TRANSITION (JATUH & BERPUTAR KELUAR)
+   GPU ACCELERATED - ZERO REFLOW - TRANSLATE3D OPTIMIZED
+   ========================================================== */
+
+.flower-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flower-transition-overlay.active {
+  pointer-events: auto;
+}
+
+/* Backdrop: Tutup gelap saat bunga jatuh */
+.flower-transition-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(36, 29, 24, 0.75) 0%,
+    rgba(51, 42, 35, 0.85) 50%,
+    rgba(14, 10, 8, 0.95) 100%
+  );
+  opacity: 0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.flower-transition-overlay.active .flower-transition-backdrop {
+  opacity: 1;
+}
+
+/* Stage: Container positioning untuk animasi flowers */
+.flower-transition-stage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ========================================================== 
+   FLOWER CURTAIN ELEMENT 
+   ========================================================== */
+.flower-curtain {
+  position: fixed;
+  object-fit: contain;
+  display: block;
+  opacity: 0;
+  /* Initial state: Hidden di atas layar */
+  transform: translate3d(0, -500px, 0) scale(1) rotate(0deg);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* Filter untuk soft glow — sedikit dihangatkan (gold + dusty rose) supaya
+     mendukung nuansa romantis saat bunga tersebar di Fase 2 */
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 18px rgba(214, 166, 160, 0.4)) drop-shadow(0 0 30px rgba(201, 166, 107, 0.18));
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ========================================================== 
+   FASE 1: JATUH DARI ATAS KE POSISI GRID (DENSE COVERAGE)
+   ========================================================== */
+.flower-curtain.is-falling {
+  animation: flowerFallPhase 1.8s cubic-bezier(0.19, 1, 0.22, 1) var(--fall-delay, 0s) forwards;
+  /* 1.8s = fallDurationMs. cubic-bezier(0.19,1,0.22,1) = ease-out-expo:
+     dramatis di awal (jatuh cepat) lalu "mendarat" lembut di posisi akhir —
+     menghindari kesan linear/jatuh kaku. */
+}
+
+/* 
+   Animasi Jatuh (Falling):
+   - Start: Jatuh dari luar batas atas (Y < 0), kira-kira di atas titik
+     pendaratannya sendiri (lihat startX di script.js)
+   - End: Posisi grid (berbasis aspect ratio layar) + ukuran acak 30-180px
+     agar bunga besar menutup celah bunga kecil → tirai 100% padat
+   - Opacity: Fade in sampai opacity 1
+   - Rotation: Slight rotation saat jatuh untuk natural motion
+*/
+@keyframes flowerFallPhase {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--start-x, 50vw), var(--start-y, -300px), 0) scale(0.8) rotate(-10deg);
+  }
+  
+  50% {
+    opacity: 0.6;
+  }
+  
+  100% {
+    opacity: 1;
+    /* End position: Grid dense coverage — lihat kalkulasi cols/rows di script.js */
+    transform: translate3d(var(--end-x, 50vw), var(--end-y, 50vh), 0) scale(1) rotate(0deg);
+  }
+}
+
+/* ========================================================== 
+   FASE 2: RADIAL CENTER-OUT DISPERSION (BERPUTAR CCW & MENYEBAR
+   MENJAUH DARI TITIK TENGAH LAYAR)
+   ========================================================== */
+.flower-curtain.is-scattering {
+  animation: flowerScatterPhase 1.9s cubic-bezier(0.22, 1, 0.36, 1) var(--scatter-delay, 0s) forwards;
+  /* 1.9s = scatterDurationMs (diperlambat dari 1.4s). cubic-bezier(0.22,1,0.36,1)
+     = varian ease-out-expo yang lebih lembut di ekor animasi dibanding fase
+     jatuh — flower terasa "melayang pergi" pelan-pelan, bukan meluncur cepat
+     lalu berhenti mendadak. --scatter-delay sendiri sudah berbasis JARAK dari
+     pusat layar (dihitung di script.js), sehingga elemen yang lebih dekat ke
+     pusat mulai animasi ini lebih dulu → efek "membuka dari tengah". */
+}
+
+/*
+   Animasi Scatter (Radial Center-Out):
+   - Start: Dari posisi akhir Fase 1 (opacity 1)
+   - End: Terbang ke luar layar mengikuti vektor (pusat layar → posisi bunga),
+     dihitung dengan Math.atan2 di script.js — BUKAN sudut acak lagi
+   - Rotation: HANYA berlawanan arah jarum jam (var(--rot) selalu bernilai
+     negatif, -180deg s/d -360deg — dipaksa dari script.js)
+   - Opacity: Fade out sambil terbang
+   - Transform: Translate3d untuk GPU optimization + scale naik sedikit
+*/
+@keyframes flowerScatterPhase {
+  0% {
+    opacity: 1;
+    /* Start dari posisi akhir fase 1 */
+    transform: translate3d(var(--end-x, 50vw), var(--end-y, 50vh), 0) scale(1) rotate(0deg);
+  }
+  
+  100% {
+    opacity: 0;
+    /* Scatter: menjauh dari pusat layar (radial), rotasi CCW saja */
+    transform: translate3d(var(--scatter-x, 100vw), var(--scatter-y, 100vh), 0) scale(1.2) rotate(var(--rot, -360deg));
+  }
+}
+
+/* ========================================================== 
+   BONUS: TAP FLOWER (Optional untuk modal bunga)
+   ========================================================== */
+@keyframes flowerTap {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ========================================================== 
+   TRANSISI ANTAR SECTION — Fallback & Reveal
    ========================================================== */
 #scene-transition {
   position: fixed;
@@ -1449,14 +1534,53 @@ button {
   pointer-events: all;
 }
 
-/* Kelas yang ditambahkan ke section baru setelah blackout — scale spring masuk */
+/* Kelas yang ditambahkan ke section baru saat muncul */
 .scene-reveal {
   animation: sceneReveal 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 @keyframes sceneReveal {
-  from { opacity: 0; transform: scale(0.98); }
-  to   { opacity: 1; transform: scale(1); }
+  from { 
+    opacity: 0; 
+    transform: scale(0.98) translateY(10px); 
+  }
+  to   { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+/* ========================================================== 
+   RESPONSIVE: Adjust timing untuk mobile
+   ========================================================== */
+@media (max-width: 768px) {
+  .flower-curtain {
+    /* Shadow lebih ringan di mobile (perf), TAPI durasi animasi sengaja
+       TIDAK di-override lagi di sini. Sebelumnya blok ini memaksa
+       animation-duration 1s/0.85s di layar kecil, padahal timer JS
+       (totalFallTimeMs / totalScatterTimeMs di script.js) selalu dihitung
+       dari FLOWER_TRANSITION_CONFIG (1.8s/1.9s) tanpa peduli lebar layar.
+       Akibatnya di mobile: animasi CSS sudah selesai & bunga diam di posisi
+       akhir, tapi callback JS (reveal section berikutnya / cleanup) baru
+       jalan ~0.8-1s kemudian — jeda "diam" yang terlihat seperti nge-lag.
+       Menyamakan durasi CSS dgn config JS di semua ukuran layar menghapus
+       jeda itu. */
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flower-curtain.is-falling {
+    animation-duration: 0.3s;
+  }
+  
+  .flower-curtain.is-scattering {
+    animation-duration: 0.3s;
+  }
+  
+  .scene-reveal {
+    animation-duration: 0.2s;
+  }
 }
 
 /* ==========================================================
@@ -1893,26 +2017,24 @@ button {
 .closing-card {
   position: relative;
   width: 100%;
-  max-width: 420px;
-  background: linear-gradient(145deg, #2C2018 0%, #1E1510 100%);
-  border: 1px solid rgba(201, 166, 107, 0.3);
-  border-radius: 18px;
-  padding: 1.75rem 1.75rem 1.6rem;
-  /* Layered shadow + backdrop blur = melayang */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  max-width: 440px;
+  background: linear-gradient(150deg, rgba(51, 42, 35, 0.88) 0%, rgba(28, 20, 15, 0.95) 100%);
+  border: 1px solid rgba(201, 166, 107, 0.35);
+  border-radius: 24px;
+  padding: 2rem 2rem 1.8rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.5),
-    0 12px 40px rgba(0, 0, 0, 0.45),
-    0 32px 80px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(201, 166, 107, 0.15);
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 20px 60px rgba(0, 0, 0, 0.65),
+    0 0 25px rgba(201, 166, 107, 0.15),
+    inset 0 1px 0 rgba(201, 166, 107, 0.25);
   overflow: hidden;
-  /* Stagger reveal via JS — initial hidden */
   opacity: 0;
-  transform: translateY(12px) scale(0.98);
+  transform: translateY(16px) scale(0.97);
   transition:
-    opacity 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .closing-card.card-revealed {
@@ -1925,74 +2047,78 @@ button {
   position: absolute;
   width: 32px;
   height: 32px;
-  border-color: rgba(201, 166, 107, 0.35);
+  border-color: rgba(201, 166, 107, 0.45);
   border-style: solid;
 }
 .closing-card-deco--tl {
-  top: 10px; left: 10px;
+  top: 12px; left: 12px;
   border-width: 1.5px 0 0 1.5px;
   border-radius: 4px 0 0 0;
 }
 .closing-card-deco--br {
-  bottom: 10px; right: 10px;
+  bottom: 12px; right: 12px;
   border-width: 0 1.5px 1.5px 0;
   border-radius: 0 0 4px 0;
 }
 
 .closing-card-eyebrow {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
-  color: rgba(201, 166, 107, 0.7);
+  letter-spacing: 0.35em;
+  color: rgba(201, 166, 107, 0.85);
   margin-bottom: 0.4rem;
+  font-weight: 700;
 }
 
 .closing-card-heading {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.4rem, 5vw, 1.9rem);
-  font-weight: 600;
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  font-weight: 700;
   color: #F3E8D8;
   line-height: 1.2;
   margin-bottom: 0.25rem;
+  letter-spacing: 0.05em;
 }
 
 .closing-card-from {
   font-family: 'Caveat', cursive;
-  font-size: 1.05rem;
-  color: rgba(201, 166, 107, 0.8);
+  font-size: 1.25rem;
+  color: #D6A6A0;
   margin-bottom: 0.9rem;
 }
 
 .closing-card-divider {
   width: 100%;
   height: 1px;
-  background: rgba(243, 232, 216, 0.12);
+  background: linear-gradient(90deg, transparent 0%, rgba(201, 166, 107, 0.4) 50%, transparent 100%);
   margin-bottom: 0.9rem;
 }
 
 .closing-card-body {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.88rem;
-  color: rgba(243, 232, 216, 0.65);
-  line-height: 1.65;
+  font-size: 0.9rem;
+  color: rgba(243, 232, 216, 0.75);
+  line-height: 1.7;
 }
 
 /* ── Tombol buka bunga ── */
 .open-flower-btn {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #2C1A0E;
-  background: linear-gradient(135deg, #E8C97A 0%, #C9A66B 100%);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #241D18;
+  background: linear-gradient(135deg, #D6A6A0 0%, #C9A66B 50%, #E8C97A 100%);
+  background-size: 200% auto;
   border: none;
   border-radius: 9999px;
-  padding: 0.75rem 2rem;
+  padding: 0.85rem 2.25rem;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(201, 166, 107, 0.4);
+  box-shadow: 0 8px 30px rgba(201, 166, 107, 0.45), 0 0 15px rgba(214, 166, 160, 0.3);
   transition:
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.65, 0, 0.35, 1);
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    background-position 0.4s ease;
   /* Stagger reveal via JS */
   opacity: 0;
   transform: translateY(10px);
@@ -2004,15 +2130,17 @@ button {
   transition:
     opacity 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
     transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.65, 0, 0.35, 1);
+    box-shadow 0.25s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .open-flower-btn:hover,
 .open-flower-btn:focus-visible {
-  transform: translateY(-2px) scale(1.05);
+  transform: translateY(-3px) scale(1.05);
+  background-position: right center;
   box-shadow:
-    0 0 0 4px rgba(201, 166, 107, 0.2),
-    0 8px 28px rgba(201, 166, 107, 0.5);
+    0 0 0 4px rgba(201, 166, 107, 0.25),
+    0 12px 36px rgba(201, 166, 107, 0.65),
+    0 0 25px rgba(214, 166, 160, 0.45);
 }
 
 .open-flower-btn:active {
@@ -2028,18 +2156,22 @@ button {
 /* ── Tombol ulangi dari awal (surat) ── */
 .restart-btn {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.85rem;
-  color: rgba(243, 232, 216, 0.65);
-  background: transparent;
-  border: 1px solid rgba(243, 232, 216, 0.2);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(243, 232, 216, 0.75);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(243, 232, 216, 0.25);
   border-radius: 9999px;
-  padding: 0.6rem 1.6rem;
+  padding: 0.65rem 1.8rem;
   cursor: pointer;
   transition:
-    color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    border-color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.65, 0, 0.35, 1);
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
   /* Stagger reveal via JS */
   opacity: 0;
   transform: translateY(8px);
@@ -2059,9 +2191,10 @@ button {
 .restart-btn:hover,
 .restart-btn:focus-visible {
   color: #F3E8D8;
-  border-color: rgba(243, 232, 216, 0.5);
-  transform: scale(1.04);
-  box-shadow: 0 0 0 3px rgba(243, 232, 216, 0.08);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(214, 166, 160, 0.6);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .restart-btn:active {
@@ -2148,44 +2281,46 @@ button {
 
 /* Card info bunga — layered shadow + backdrop blur */
 .flower-info-card {
-  width: calc(100% - 2.5rem);
-  background: #F5EDD8;
-  border-radius: 20px 20px 16px 16px;
-  padding: 4rem 1.5rem 1.5rem;
+  width: calc(100% - 2rem);
+  background: linear-gradient(160deg, #FBF6EE 0%, #F5EDD8 100%);
+  border: 1.5px solid rgba(214, 166, 160, 0.5);
+  border-radius: 24px;
+  padding: 4rem 1.6rem 1.6rem;
   text-align: center;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    0 12px 40px rgba(0, 0, 0, 0.45),
-    0 32px 80px rgba(0, 0, 0, 0.25);
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 20px 60px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(214, 166, 160, 0.2);
 }
 
 .flower-info-eyebrow {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.35em;
   color: #A07840;
   margin-bottom: 0.4rem;
+  font-weight: 700;
 }
 
 .flower-info-heading {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.4rem, 5vw, 1.9rem);
-  font-weight: 600;
-  color: #A07840;
-  font-style: italic;
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  font-weight: 700;
+  color: #8C4A44;
   line-height: 1.25;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.03em;
 }
 
 .flower-info-desc {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: #5A3A1A;
-  line-height: 1.55;
-  margin-bottom: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.2rem;
 }
 
 .flower-tags {
@@ -2193,24 +2328,25 @@ button {
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .flower-tag {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: #5A3A1A;
-  background: rgba(180, 130, 60, 0.12);
-  border: 1px solid rgba(180, 130, 60, 0.3);
+  background: rgba(201, 166, 107, 0.15);
+  border: 1px solid rgba(201, 166, 107, 0.4);
   border-radius: 9999px;
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.85rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .flower-tap-hint {
   font-family: 'Caveat', cursive;
-  font-size: 0.9rem;
-  color: rgba(90, 58, 26, 0.55);
-  margin-top: 0.25rem;
+  font-size: 1.05rem;
+  color: #A66E68;
+  margin-top: 0.4rem;
 }
 
 /* Tombol di dalam modal */
@@ -2221,32 +2357,35 @@ button {
   gap: 0.75rem;
   margin-top: 1.25rem;
   width: 100%;
-  padding: 0 1.25rem;
+  padding: 0 1rem;
 }
 
 .flower-back-btn {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #2C1A0E;
-  background: linear-gradient(135deg, #E8C97A 0%, #C9A66B 100%);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #241D18;
+  background: linear-gradient(135deg, #D6A6A0 0%, #C9A66B 50%, #E8C97A 100%);
+  background-size: 200% auto;
   border: none;
   border-radius: 9999px;
-  padding: 0.75rem 2rem;
+  padding: 0.85rem 2rem;
   width: 100%;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(201, 166, 107, 0.35);
+  box-shadow: 0 8px 28px rgba(201, 166, 107, 0.45);
   transition:
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.65, 0, 0.35, 1);
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    background-position 0.4s ease;
 }
 
 .flower-back-btn:hover,
 .flower-back-btn:focus-visible {
-  transform: translateY(-2px) scale(1.04);
+  transform: translateY(-2px) scale(1.02);
+  background-position: right center;
   box-shadow:
-    0 0 0 4px rgba(201, 166, 107, 0.2),
-    0 8px 28px rgba(201, 166, 107, 0.5);
+    0 0 0 4px rgba(201, 166, 107, 0.25),
+    0 12px 36px rgba(201, 166, 107, 0.65);
 }
 
 .flower-back-btn:active {
@@ -2256,27 +2395,31 @@ button {
 
 .flower-restart-btn {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.85rem;
-  color: rgba(243, 232, 216, 0.6);
-  background: transparent;
-  border: 1px solid rgba(243, 232, 216, 0.2);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(243, 232, 216, 0.75);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(243, 232, 216, 0.25);
   border-radius: 9999px;
-  padding: 0.6rem 1.6rem;
+  padding: 0.65rem 1.6rem;
   width: 100%;
   cursor: pointer;
   transition:
-    color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    border-color 0.18s cubic-bezier(0.65, 0, 0.35, 1),
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.65, 0, 0.35, 1);
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
 }
 
 .flower-restart-btn:hover,
 .flower-restart-btn:focus-visible {
   color: #F3E8D8;
-  border-color: rgba(243, 232, 216, 0.45);
-  transform: scale(1.03);
-  box-shadow: 0 0 0 3px rgba(243, 232, 216, 0.07);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(214, 166, 160, 0.6);
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .flower-restart-btn:active {
@@ -2372,3 +2515,4 @@ button {
   filter: blur(5px) brightness(0.8);
   pointer-events: none;
 }
+

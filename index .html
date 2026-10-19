@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
 <meta charset="UTF-8" />
-
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-<title>Kejutan Ulang Tahun</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Kejutan Ulang Tahun Spesial ✨</title>
 
 <!-- Tailwind via CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -17,13 +15,24 @@
           bgdark: '#241D18',
           carddark: '#332A23',
           cream: '#F3E8D8',
+          'cream-light': '#FAF4EA',
           rose: '#D6A6A0',
+          'rose-dark': '#A66E68',
           sage: '#A9B99A',
-          gold: '#C9A66B'
+          gold: '#C9A66B',
+          'gold-light': '#E8C97A'
         },
         fontFamily: {
           display: ['"Cormorant Garamond"', 'serif'],
-          body: ['"Nunito"', 'sans-serif']
+          body: ['"Nunito"', 'sans-serif'],
+          script: ['"Caveat"', 'cursive']
+        },
+        boxShadow: {
+          'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+          'glow-gold': '0 0 25px rgba(201, 166, 107, 0.45)',
+          'glow-rose': '0 0 25px rgba(214, 166, 160, 0.45)',
+          'glow-candle': '0 0 35px 10px rgba(243, 169, 62, 0.65)',
+          'card-lux': '0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 25px rgba(201, 166, 107, 0.15)'
         }
       }
     }
@@ -31,16 +40,17 @@
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito:wght@400;600;700&family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css" />
 </head>
 
-<body class="bg-bgdark text-cream font-body min-h-screen overflow-x-hidden">
+<body class="bg-bgdark text-cream font-body min-h-screen overflow-x-hidden antialiased selection:bg-rose/30 selection:text-cream">
 
   <!-- ========== 1. LOADING SCREEN ========== -->
-  <section id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bgdark">
-    <div class="flower-loader">
+  <section id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bgdark overflow-hidden px-4">
+    <div class="flower-loader relative z-10">
       <span class="petal"></span>
       <span class="petal"></span>
       <span class="petal"></span>
@@ -49,16 +59,29 @@
       <span class="petal"></span>
       <span class="flower-center"></span>
     </div>
-    <p class="mt-8 font-display italic text-lg sm:text-xl text-cream/80 tracking-wide fade-text">
-      Menyiapkan kejutan spesial untukmu...
-    </p>
+    <div class="mt-8 text-center relative z-10 max-w-xs">
+      <p class="font-display italic text-xl sm:text-2xl text-cream/90 tracking-widest fade-text leading-relaxed">
+        Menyiapkan kejutan spesial untukmu...
+      </p>
+      <div class="flex items-center justify-center gap-1.5 mt-2.5 text-gold/60 text-xs tracking-widest uppercase font-semibold">
+        <span>✦</span>
+        <span>sweet little moments</span>
+        <span>✦</span>
+      </div>
+    </div>
   </section>
 
   <!-- ========== 2. HALAMAN PASSWORD ========== -->
-  <section id="password-page" class="hidden-section fixed inset-0 z-40 flex items-center justify-center px-6">
-    <div class="w-full max-w-sm bg-carddark border border-gold/30 rounded-3xl shadow-2xl px-7 py-10 sm:px-10 sm:py-12 text-center" id="password-card">
-      <div class="mx-auto mb-5 w-12 h-12 flex items-center justify-center">
-        <svg viewBox="0 0 48 48" class="w-10 h-10 text-rose" fill="none" stroke="currentColor" stroke-width="1.5">
+  <section id="password-page" class="hidden-section fixed inset-0 z-40 flex items-center justify-center px-4 sm:px-6">
+    <div class="w-full max-w-sm bg-carddark/75 backdrop-blur-xl border border-gold/25 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.65),0_0_25px_rgba(201,166,107,0.12)] px-6 py-9 sm:px-9 sm:py-11 text-center relative overflow-hidden" id="password-card">
+      
+      <!-- Subtle top & bottom decorative glows -->
+      <div class="absolute -top-12 -right-12 w-28 h-28 bg-rose/15 rounded-full blur-2xl pointer-events-none" aria-hidden="true"></div>
+      <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-gold/15 rounded-full blur-2xl pointer-events-none" aria-hidden="true"></div>
+
+      <!-- Lock/Flower Icon Capsule -->
+      <div class="mx-auto mb-4 w-14 h-14 rounded-2xl bg-gradient-to-br from-rose/20 to-gold/10 border border-rose/30 flex items-center justify-center shadow-[0_0_20px_rgba(214,166,160,0.25)] transition-transform duration-300 hover:scale-105">
+        <svg viewBox="0 0 48 48" class="w-8 h-8 text-rose" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M24 4c-8 6-8 14 0 20 8-6 8-14 0-20Z" fill="currentColor" opacity="0.25"/>
           <path d="M24 24v20" stroke-linecap="round"/>
           <path d="M24 24c-6-4-14-2-16 4 6 4 12 2 16-4Z" fill="currentColor" opacity="0.35"/>
@@ -66,8 +89,8 @@
         </svg>
       </div>
 
-      <h1 class="font-display text-2xl sm:text-3xl font-semibold text-cream mb-2">Ada Sesuatu di Sini</h1>
-      <p class="text-sm text-cream/60 mb-8">Masukkan kata kunci untuk membuka kejutannya</p>
+      <h1 class="font-display text-2xl sm:text-3xl font-bold text-cream tracking-wide mb-1.5">Ada Sesuatu di Sini</h1>
+      <p class="font-body text-xs sm:text-sm text-cream/70 tracking-wider mb-6">Masukkan kata kunci rahasia untuk membukanya</p>
 
       <form id="password-form" class="pin-container" autocomplete="off">
         <!-- Indikator PIN -->
@@ -94,7 +117,7 @@
           <div class="numpad-cell-empty" aria-hidden="true"></div>
           <button type="button" class="numpad-btn" data-val="0">0</button>
           <button type="button" class="numpad-btn action-btn" id="btn-backspace" aria-label="Hapus angka">
-            <!-- Ikon Backspace sederhana -->
+            <!-- Ikon Backspace -->
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
               <line x1="18" y1="9" x2="12" y2="15"></line>
@@ -104,23 +127,22 @@
         </div>
 
         <button type="submit" class="pin-submit-btn">
-          Buka
+          Buka Kado ✨
         </button>
       </form>
 
-      <p id="password-error" class="mt-4 text-sm text-rose/80 opacity-0 transition-opacity duration-200">
-        Kata kunci belum tepat, coba lagi ya.
+      <p id="password-error" class="mt-4 text-xs sm:text-sm text-rose/90 opacity-0 transition-opacity duration-200 font-medium">
+        Kata kunci belum tepat, coba lagi ya sayang.
       </p>
     </div>
   </section>
 
-  <!-- ========== 3. HALAMAN UTAMA (MAIN MENU) ========== -->
   <!-- ========== 3. HALAMAN UTAMA (MAIN MENU - VINTAGE MIXTAPE) ========== -->
   <section id="main-page" class="hidden-section fixed inset-0 z-30 flex items-center justify-center px-4 py-6 overflow-y-auto">
-    <div class="w-full max-w-xs sm:max-w-md bg-[#FBF6EE] text-[#4A3B32] border-2 border-[#D6A6A0]/40 rounded-3xl shadow-2xl p-5 sm:p-7 relative overflow-hidden my-auto">
+    <div class="w-full max-w-xs sm:max-w-md bg-[#FAF4EA] text-[#4A3B32] border-2 border-[#D6A6A0]/50 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.55),0_0_35px_rgba(214,166,160,0.15)] p-5 sm:p-7 relative overflow-hidden my-auto backdrop-blur-md">
       
       <!-- Ornamen Bunga Pastel di Sudut -->
-      <div class="absolute -top-2 -right-2 w-20 h-20 opacity-45 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-2 -right-2 w-24 h-24 opacity-60 pointer-events-none" aria-hidden="true">
         <svg viewBox="0 0 100 100" fill="none">
           <path d="M50 20 C60 5, 80 5, 85 20 C90 35, 75 50, 50 50 Z" fill="#F0D0CB"/>
           <path d="M50 50 C65 50, 80 65, 80 80 C65 95, 50 80, 50 50 Z" fill="#E2C2BD"/>
@@ -131,32 +153,32 @@
 
       <!-- Header Banner & Judul Utama -->
       <div class="text-center mb-4 relative z-10">
-        <div class="inline-block px-3 py-1 bg-[#E8D5C8]/70 border border-[#D6A6A0]/60 rounded-full text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-[#7A5C58] uppercase">
-          FOR ISMA SASKINA – FROM APIEP
+        <div class="inline-block px-3.5 py-1 bg-[#E8D5C8]/80 border border-[#D6A6A0]/60 rounded-full text-[10px] sm:text-xs font-semibold tracking-[0.25em] text-[#7A5C58] uppercase shadow-sm">
+          FOR ISMA SASKINA · FROM APIEP
         </div>
-        <h1 class="font-['Caveat'] text-3xl sm:text-4xl font-bold text-[#A66E68] tracking-wide mt-1">
+        <h1 class="font-['Caveat'] text-3xl sm:text-4xl font-bold text-[#A66E68] tracking-wide mt-1.5 drop-shadow-sm">
           Songs for you
         </h1>
       </div>
 
       <!-- Ilustrasi Kaset Vintage -->
       <div class="w-full bg-[#E5D4C0] border-2 border-[#B89B86] rounded-2xl p-3 sm:p-4 mb-4 shadow-inner relative">
-        <div class="bg-[#F4ECE1] border border-[#C5B3A1] rounded-xl p-3 text-center">
-          <div class="flex justify-between items-center text-[10px] font-mono text-[#8C7363] uppercase tracking-wider mb-2 border-b border-[#DCD0C0] pb-1">
+        <div class="bg-[#F5ECE1] border border-[#C5B3A1] rounded-xl p-3 text-center shadow-sm">
+          <div class="flex justify-between items-center text-[10px] font-mono text-[#8C7363] uppercase tracking-wider mb-2 border-b border-[#DCD0C0] pb-1 font-semibold">
             <span>SIDE A</span>
-            <span>NOSTALGIA MIXTAPE</span>
+            <span class="tracking-widest">NOSTALGIA MIXTAPE</span>
             <span>STEREO</span>
           </div>
           
           <!-- Jendela Reel Kaset -->
-          <div class="bg-[#3A302B] rounded-lg p-2.5 flex justify-around items-center my-1 relative overflow-hidden">
-            <div id="reel-left" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-4 border-dashed border-[#F3E8D8]/70 bg-[#241D18] flex items-center justify-center">
+          <div class="bg-[#3A302B] rounded-lg p-2.5 flex justify-around items-center my-1 relative overflow-hidden shadow-inner">
+            <div id="reel-left" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-4 border-dashed border-[#F3E8D8]/70 bg-[#241D18] flex items-center justify-center shadow">
               <div class="w-3.5 h-3.5 bg-[#F3E8D8] rounded-full"></div>
             </div>
-            <div class="h-2 w-16 sm:w-24 bg-[#5C4D43] rounded-full overflow-hidden flex items-center">
-              <div class="h-full w-2/3 bg-[#8C6D58]"></div>
+            <div class="h-2.5 w-16 sm:w-24 bg-[#5C4D43] rounded-full overflow-hidden flex items-center px-0.5">
+              <div class="h-full w-2/3 bg-[#8C6D58] rounded-full"></div>
             </div>
-            <div id="reel-right" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-4 border-dashed border-[#F3E8D8]/70 bg-[#241D18] flex items-center justify-center">
+            <div id="reel-right" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-4 border-dashed border-[#F3E8D8]/70 bg-[#241D18] flex items-center justify-center shadow">
               <div class="w-3.5 h-3.5 bg-[#F3E8D8] rounded-full"></div>
             </div>
           </div>
@@ -164,48 +186,48 @@
       </div>
 
       <!-- Daftar Lagu (Playlist / Tracklist Menu) -->
-      <div class="bg-[#F5ECE1] border border-[#DCCEC0] rounded-xl p-3.5 mb-3">
-        <div class="flex items-center gap-1.5 mb-2.5 border-b border-[#E2D4C4] pb-1">
+      <div class="bg-[#F5ECE1] border border-[#DCCEC0] rounded-xl p-3.5 mb-3.5 shadow-sm">
+        <div class="flex items-center gap-1.5 mb-2.5 border-b border-[#E2D4C4] pb-1.5">
           <svg class="w-4 h-4 text-[#A66E68]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 .895-2 3-2 3 .895 3 2zm12 0c0 1.105-1.343 2-3 2s-3-.895-3-2 .895-2 3-2 3 .895 3 2zM9 10l12-2"/>
           </svg>
-          <span class="text-[11px] uppercase tracking-widest font-semibold text-[#8C6D58]">Tracklist Menu</span>
+          <span class="text-[11px] uppercase tracking-widest font-bold text-[#8C6D58]">Tracklist Menu</span>
         </div>
         
         <div class="space-y-2 text-xs sm:text-sm font-medium">
           <!-- Track 01 -->
-          <button data-menu="kalender" data-src="assets/audio/perfect.mp3" data-title="Perfect – Ed Sheeran" class="track-btn w-full flex items-center justify-between p-2.5 bg-white/80 hover:bg-[#E8D5C8]/60 border border-[#E2D5C5] rounded-lg transition-all text-left group">
+          <button data-menu="kalender" data-src="assets/audio/perfect.mp3" data-title="Perfect – Ed Sheeran" class="track-btn w-full flex items-center justify-between p-2.5 bg-white/90 hover:bg-[#E8D5C8]/80 border border-[#E2D5C5] hover:border-[#D6A6A0] rounded-lg transition-all duration-300 text-left group hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow">
             <div class="flex items-center gap-2.5 truncate">
               <span class="font-mono text-xs text-[#A66E68] font-bold">01</span>
-              <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate">Perfect – Ed Sheeran</span>
+              <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate transition-colors">Perfect – Ed Sheeran</span>
             </div>
-            <span class="text-[10px] px-2 py-0.5 bg-[#A9B99A]/25 text-[#4E5E40] rounded-full font-sans font-bold whitespace-nowrap">Kalender</span>
+            <span class="text-[10px] px-2.5 py-0.5 bg-[#A9B99A]/25 text-[#4E5E40] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Kalender</span>
           </button>
 
           <!-- Track 02 -->
-          <button data-menu="galeri" data-src="assets/audio/all-of-me.mp3" data-title="All of Me – John Legend" class="track-btn w-full flex items-center justify-between p-2.5 bg-white/80 hover:bg-[#E8D5C8]/60 border border-[#E2D5C5] rounded-lg transition-all text-left group">
+          <button data-menu="galeri" data-src="assets/audio/all-of-me.mp3" data-title="All of Me – John Legend" class="track-btn w-full flex items-center justify-between p-2.5 bg-white/90 hover:bg-[#E8D5C8]/80 border border-[#E2D5C5] hover:border-[#D6A6A0] rounded-lg transition-all duration-300 text-left group hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow">
             <div class="flex items-center gap-2.5 truncate">
               <span class="font-mono text-xs text-[#A66E68] font-bold">02</span>
-              <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate">All of Me – John Legend</span>
+              <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate transition-colors">All of Me – John Legend</span>
             </div>
-            <span class="text-[10px] px-2 py-0.5 bg-[#D6A6A0]/25 text-[#8C4A44] rounded-full font-sans font-bold whitespace-nowrap">Galeri</span>
+            <span class="text-[10px] px-2.5 py-0.5 bg-[#D6A6A0]/25 text-[#8C4A44] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Galeri</span>
           </button>
 
           <!-- Track 03 -->
-          <button data-menu="pesan" data-src="assets/audio/lover.mp3" data-title="Lover – Taylor Swift" class="track-btn w-full flex items-center justify-between p-2.5 bg-white/80 hover:bg-[#E8D5C8]/60 border border-[#E2D5C5] rounded-lg transition-all text-left group">
+          <button data-menu="pesan" data-src="assets/audio/lover.mp3" data-title="Lover – Taylor Swift" class="track-btn w-full flex items-center justify-between p-2.5 bg-white/90 hover:bg-[#E8D5C8]/80 border border-[#E2D5C5] hover:border-[#D6A6A0] rounded-lg transition-all duration-300 text-left group hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow">
             <div class="flex items-center gap-2.5 truncate">
               <span class="font-mono text-xs text-[#A66E68] font-bold">03</span>
-              <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate">Lover – Taylor Swift</span>
+              <span class="text-[#4A3B32] group-hover:text-[#A66E68] font-semibold truncate transition-colors">Lover – Taylor Swift</span>
             </div>
-            <span class="text-[10px] px-2 py-0.5 bg-[#C9A66B]/25 text-[#7A5B28] rounded-full font-sans font-bold whitespace-nowrap">Surat</span>
+            <span class="text-[10px] px-2.5 py-0.5 bg-[#C9A66B]/25 text-[#7A5B28] rounded-full font-sans font-bold whitespace-nowrap shadow-sm">Surat</span>
           </button>
         </div>
       </div>
 
       <!-- AUDIO PLAYER MINIMALIS VINTAGE -->
-      <div class="bg-[#F5ECE1] border border-[#DCCEC0] rounded-xl p-3 mb-4 shadow-inner">
+      <div class="bg-[#F5ECE1] border border-[#DCCEC0] rounded-xl p-3 mb-3.5 shadow-inner">
         <!-- Tag Audio HTML5 (Sediakan path awal di atribut src) -->
-        <audio id="main-audio" src="assets/audio/perfect.mp3" preload="metadata"></audio>
+       <audio id="main-audio" src="assets/audio/perfect.mp3" preload="auto"></audio>
 
         <!-- Informasi Lagu & Durasi -->
         <div class="flex items-center justify-between text-xs mb-2 px-1">
@@ -213,7 +235,7 @@
             <span id="player-status-dot" class="w-2 h-2 rounded-full bg-[#B89B86]"></span>
             <span id="current-track-title" class="font-semibold text-[#4A3B32] truncate">Perfect – Ed Sheeran</span>
           </div>
-          <div class="text-[10px] font-mono text-[#8C6D58] shrink-0">
+          <div class="text-[10px] font-mono text-[#8C6D58] shrink-0 font-medium">
             <span id="audio-current-time">0:00</span> / <span id="audio-duration">0:00</span>
           </div>
         </div>
@@ -221,7 +243,7 @@
         <!-- Kontrol Play/Pause & Progress Bar -->
         <div class="flex items-center gap-2.5">
           <!-- Tombol Play / Pause -->
-          <button id="play-pause-btn" type="button" aria-label="Play or Pause Audio" class="w-8 h-8 rounded-full bg-[#A66E68] hover:bg-[#8C5D58] active:scale-95 text-[#FBF6EE] flex items-center justify-center shadow transition-all shrink-0">
+          <button id="play-pause-btn" type="button" aria-label="Play or Pause Audio" class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#A66E68] to-[#C9A66B] hover:brightness-110 active:scale-95 text-[#FBF6EE] flex items-center justify-center shadow-[0_4px_12px_rgba(166,110,104,0.35)] transition-all duration-300 shrink-0">
             <!-- Icon Play -->
             <svg id="icon-play" class="w-4 h-4 translate-x-0.5 fill-current" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z"/>
@@ -240,7 +262,7 @@
       </div>
 
       <!-- Catatan Liner Note Bergaya Tulisan Tangan -->
-      <div class="bg-[#FDFBF7] border border-[#E8DFC9] rounded-xl p-3.5 relative shadow-sm">
+      <div class="bg-[#FFFDF9] border border-[#E8DFC9] rounded-xl p-3.5 relative shadow-sm">
         <div class="flex items-center gap-1.5 mb-1">
           <span class="w-2 h-2 rounded-full bg-[#D6A6A0]"></span>
           <h2 class="font-['Caveat'] text-lg font-bold text-[#8C5D58]">Liner Note:</h2>
@@ -318,15 +340,17 @@
   </section>
 
   <!-- ========== 4b. SECTION BLOWN (TEKS SETELAH LILIN PADAM) ========== -->
-  <section id="section-blown" class="hidden-section fixed inset-0 z-40 flex flex-col items-center justify-center blown-bg">
-    <p id="blown-text-screen" class="blown-text-screen">Yeyyy apinya padam! 🎉</p>
+  <section id="section-blown" class="hidden-section fixed inset-0 z-40 flex flex-col items-center justify-center blown-bg px-6">
+    <p id="blown-text-screen" class="blown-text-screen font-display italic text-3xl sm:text-4xl text-cream tracking-wide text-center">
+      Yeyyy apinya padam! 🎉✨
+    </p>
   </section>
 
   <!-- ========== 4c. SECTION WISH (PILIH PERMOHONAN) ========== -->
-  <section id="section-wish" class="hidden-section fixed inset-0 z-40 wish-bg overflow-y-auto" >
+  <section id="section-wish" class="hidden-section fixed inset-0 z-40 wish-bg overflow-y-auto">
 
     <button id="wish-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
-      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+      <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Kembali</span>
@@ -340,7 +364,7 @@
 
     <!-- Popup konfirmasi setelah wish dipilih -->
     <div id="wish-popup" class="wish-popup hidden-section">
-      <p class="wish-popup-text">Wish diterima. Semoga pelan-pelan jadi nyata.</p>
+      <p class="wish-popup-text">Wish diterima. Semoga pelan-pelan jadi nyata ya sayang ♡</p>
     </div>
   </section>
 
@@ -348,7 +372,7 @@
   <section id="section-gallery" class="hidden-section fixed inset-0 z-40 gallery-bg overflow-hidden">
 
     <button id="gallery-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
-      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+      <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Kembali</span>
@@ -360,14 +384,14 @@
     <!-- Tipografi di bawah formasi hati -->
     <div id="gallery-caption" class="gallery-caption hidden-section">
       <p class="gallery-caption-eyebrow">Happy Birthday</p>
-      <h2 class="gallery-caption-heading">Kamu.</h2>
+      <h2 class="gallery-caption-heading">Isma Saskina.</h2>
       <p class="gallery-caption-sub">Hari ini kamu wajib dirayakan.</p>
     </div>
 
     <!-- Tombol ke Fase 4 (Pesan) -->
-    <button id="gallery-letter-btn" class="gallery-letter-btn hidden-section" type="button">
-      Ada satu surat buat kamu
-      <svg viewBox="0 0 20 20" class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" stroke-width="2">
+    <button id="gallery-letter-btn" class="gallery-letter-btn hidden-section group" type="button">
+      <span>Ada satu surat buat kamu</span>
+      <svg viewBox="0 0 20 20" class="w-4 h-4 inline-block ml-1 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M4 10h12M11 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
@@ -389,7 +413,7 @@
   <section id="section-message" class="hidden-section fixed inset-0 z-40 msg-bg overflow-y-auto">
 
     <button id="msg-back-btn" class="back-btn" type="button" aria-label="Kembali ke menu">
-      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+      <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Kembali</span>
@@ -415,14 +439,14 @@
         <p class="letter-sign">— Aku</p>
       </article>
 
-      <!-- Kartu penutup dark -->
+      <!-- Kartu penutup dark glassmorphism -->
       <div class="closing-card">
         <p class="closing-card-eyebrow">Untuk Kamu</p>
         <h2 class="closing-card-heading">Happy Birthday, Kamu</h2>
         <p class="closing-card-from">dari Aku</p>
         <div class="closing-card-divider"></div>
         <p class="closing-card-body">Semoga wish yang kamu pilih tadi benar-benar menemukan jalannya tahun ini.</p>
-        <!-- Dekorasi sudut -->
+        <!-- Dekorasi sudut emas -->
         <span class="closing-card-deco closing-card-deco--tl" aria-hidden="true"></span>
         <span class="closing-card-deco closing-card-deco--br" aria-hidden="true"></span>
       </div>
@@ -432,10 +456,6 @@
         Buka bunga penutup 🌷
       </button>
 
-      <!-- Tombol ulangi dari awal -->
-      <button id="restart-btn" class="restart-btn" type="button">
-        Ulangi dari Awal
-      </button>
 
     </div>
   </section>
@@ -445,7 +465,7 @@
     <div class="flower-modal-backdrop" id="flower-modal-backdrop"></div>
 
     <div class="flower-modal-content">
-      <!-- Buket bunga (placeholder — ganti src dengan gambar buket nyata) -->
+      <!-- Buket bunga -->
       <div class="flower-bouquet-wrap">
         <img
           id="flower-img"
@@ -459,9 +479,9 @@
 
       <!-- Card deskripsi bunga -->
       <div class="flower-info-card">
-        <p class="flower-info-eyebrow">Persahabatan</p>
-        <h3 class="flower-info-heading">Sunshine Friend untuk Kamu</h3>
-        <p class="flower-info-desc">Bunga kecil penutup buat yang ulang tahun hari ini.</p>
+        <p class="flower-info-eyebrow">Persahabatan &amp; Cinta</p>
+        <h3 class="flower-info-heading">Sunshine Bouquet untuk Kamu</h3>
+        <p class="flower-info-desc">Bunga kecil penutup buat yang paling berharga hari ini.</p>
 
         <div class="flower-tags">
           <span class="flower-tag"><strong>Sunflower</strong> · Loyalty</span>
@@ -477,36 +497,41 @@
         <button id="flower-back-btn" class="flower-back-btn" type="button">
           Kembali ke surat
         </button>
-        <button id="flower-restart-btn" class="flower-restart-btn" type="button">
-          Ulangi dari Awal
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODAL LANJUT DARI LAGU (TOAST POPUP) ========== -->
+  <div id="next-action-modal" class="hidden-section fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-[#0E0A08]/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="next-action-backdrop"></div>
+    
+    <div class="relative bg-[#FAF4EA] border-2 border-[#D6A6A0]/70 rounded-3xl p-6 sm:p-8 max-w-xs w-full shadow-[0_20px_60px_rgba(0,0,0,0.65),0_0_30px_rgba(214,166,160,0.2)] text-center transform transition-all duration-300 scale-90 opacity-0" id="next-action-card">
+      <div class="mx-auto mb-3 w-12 h-12 flex items-center justify-center bg-[#D6A6A0]/25 border border-[#D6A6A0]/40 rounded-full shadow-inner">
+        <svg class="w-6 h-6 text-[#A66E68]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 .895-2 3-2 3 .895 3 2z"/>
+        </svg>
+      </div>
+      <h3 class="font-['Caveat'] text-3xl font-bold text-[#A66E68] mb-1.5 drop-shadow-sm">Lagu Diputar 🎵</h3>
+      <p class="font-body text-[#5A473D] text-xs sm:text-sm mb-6 leading-relaxed">Nikmati lagunya sebentar, pilih lagu lain, atau langsung lanjut ke kejutannya?</p>
+      
+      <div class="flex flex-col gap-2.5">
+        <button id="btn-lanjut-kue" class="w-full bg-gradient-to-r from-[#D6A6A0] via-[#C9A66B] to-[#D6A6A0] bg-[length:200%_auto] text-[#241D18] font-bold py-3 rounded-xl shadow-[0_4px_16px_rgba(214,166,160,0.4)] transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 text-sm">
+          Lanjut ke Kejutan ✨
+        </button>
+        <button id="btn-pilih-lagu" class="w-full bg-transparent border border-[#D6A6A0]/80 text-[#A66E68] font-bold py-2.5 rounded-xl transform transition-all duration-200 hover:bg-[#D6A6A0]/15 active:scale-95 text-xs sm:text-sm">
+          Pilih Lagu Lain
         </button>
       </div>
     </div>
   </div>
 
-  <div id="next-action-modal" class="hidden-section fixed inset-0 z-[60] flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-[#0E0A08]/40 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="next-action-backdrop"></div>
-    
-    <div class="relative bg-[#FBF6EE] border-2 border-[#D6A6A0]/60 rounded-3xl p-6 sm:p-8 max-w-xs w-full shadow-[0_10px_40px_rgba(0,0,0,0.5)] text-center transform transition-all duration-300 scale-90 opacity-0" id="next-action-card">
-      <div class="mx-auto mb-3 w-12 h-12 flex items-center justify-center bg-[#D6A6A0]/20 rounded-full">
-        <svg class="w-6 h-6 text-[#A66E68]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 .895-2 3-2 3 .895 3 2z"/>
-        </svg>
-      </div>
-      <h3 class="font-['Caveat'] text-2xl sm:text-3xl font-bold text-[#A66E68] mb-2">Lagu Diputar</h3>
-      <p class="font-body text-[#5A473D] text-sm mb-6 leading-relaxed">nikmatin lagunya sebentar, pilih lagu lain, atau langsung lanjut ke kejutannya?</p>
-      
-      <div class="flex flex-col gap-3">
-        <button id="btn-lanjut-kue" class="w-full bg-gradient-to-r from-[#D6A6A0] to-[#C9A66B] text-[#241D18] font-bold py-3 rounded-xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl active:scale-95">
-          lanjut aja sayangg
-        </button>
-        <button id="btn-pilih-lagu" class="w-full bg-transparent border border-[#D6A6A0] text-[#A66E68] font-bold py-3 rounded-xl transform transition hover:bg-[#D6A6A0]/10 active:scale-95">
-          pilih lagu lagi dehh
-        </button>
-      </div>
-    </div>
+  <!-- ========== FLOWER BLOOMING TRANSITION OVERLAY ========== -->
+  <div id="flower-transition-overlay" class="flower-transition-overlay" aria-hidden="true">
+    <div id="flower-transition-backdrop" class="flower-transition-backdrop"></div>
+    <div id="flower-transition-stage" class="flower-transition-stage"></div>
   </div>
-  <!-- Overlay transisi antar scene (hitam fade in/out) -->
+
+  <!-- Overlay transisi antar scene fallback -->
   <div id="scene-transition"></div>
 
   <script src="script.js"></script>

@@ -1,56 +1,290 @@
+
 // ============================================================
 // KONFIGURASI
 // ============================================================
 const CORRECT_PASSWORD = '000000';
 const LOADING_DURATION_MS = 3000;
-
+ 
 // ============================================================
 // REFERENSI ELEMEN
 // ============================================================
 const loadingScreen = document.getElementById('loading-screen');
 const passwordPage  = document.getElementById('password-page');
 const mainPage      = document.getElementById('main-page');
-
+ 
 const passwordForm  = document.getElementById('password-form');
 const passwordCard  = document.getElementById('password-card');
 const passwordError = document.getElementById('password-error');
-
+ 
 // ============================================================
 // UTIL: pindah antar sesi (SPA manual via display none)
 // ============================================================
 const sceneTransitionEl = document.getElementById('scene-transition');
-
+ 
 function showSection(section) {
   section.classList.remove('hidden-section');
   section.classList.add('scene-reveal');
 }
-
+ 
 function hideSection(section) {
   section.classList.add('hidden-section');
   section.classList.remove('scene-reveal', 'fade-in');
 }
+ 
+// ============================================================
+// FLOWER CURTAIN TRANSITION (JATUH & BERPUTAR KELUAR)
+// ============================================================
+const FLOWER_TRANSITION_CONFIG = {
+  flowerCount: 75, // 75 bunga untuk tirai SANGAT padat (memenuhi layar) 🌻
+  flowerSrc: 'bunga.png', // File PNG bunga utama
+  fallDurationMs: 1800, // Fase jatuh: 1.8 detik
+  holdDurationMs: 250,  // Hold: 250ms (pause sebelum scatter)
+  scatterDurationMs: 100, // Fase terbang keluar: 1.9 detik (diperlambat, lebih anggun & romantis)
+  scatterStaggerMaxMs: 550 // Delay tambahan MAKSIMUM untuk bunga terjauh dari pusat (radial ripple 'membuka dari tengah')
+};
+ 
+// Fallback visual SVG bunga pastel
+const RAW_FLOWER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FFF0ED"/><stop offset="55%" stop-color="#D6A6A0"/><stop offset="100%" stop-color="#C9A66B"/></radialGradient><radialGradient id="c" cx="40%" cy="40%" r="50%"><stop offset="0%" stop-color="#FFF5D6"/><stop offset="100%" stop-color="#C9A66B"/></radialGradient></defs><g fill="url(#g)"><path d="M50 12 C58 2, 76 8, 75 24 C74 38, 58 45, 50 50 C42 45, 26 38, 25 24 C24 8, 42 2, 50 12 Z"/><path d="M50 88 C58 98, 76 92, 75 76 C74 62, 58 55, 50 50 C42 55, 26 62, 25 76 C24 92, 42 98, 50 88 Z"/><path d="M12 50 C2 42, 8 24, 24 25 C38 26, 45 42, 50 50 C45 58, 38 74, 24 75 C8 76, 2 58, 12 50 Z"/><path d="M88 50 C98 42, 92 24, 76 25 C62 26, 55 42, 50 50 C55 58, 62 74, 76 75 C92 76, 98 58, 88 50 Z"/><path d="M23 23 C16 14, 30 4, 40 16 C48 27, 48 42, 50 50 C42 48, 27 48, 16 40 C4 30, 14 16, 23 23 Z"/><path d="M77 23 C86 14, 96 28, 84 38 C73 46, 58 48, 50 50 C52 42, 54 27, 62 16 C70 4, 84 14, 77 23 Z"/><path d="M23 77 C14 86, 4 72, 16 62 C27 54, 42 52, 50 50 C48 58, 48 73, 40 84 C30 96, 16 86, 23 77 Z"/><path d="M77 77 C86 86, 72 96, 62 84 C54 73, 52 58, 50 50 C58 52, 73 52, 84 60 C96 70, 86 84, 77 77 Z"/></g><circle cx="50" cy="50" r="13" fill="url(#c)" stroke="#D6A6A0" stroke-width="1.5"/></svg>`;
+const DEFAULT_FLOWER_SVG = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(RAW_FLOWER_SVG);
+ 
+// Preload asset bunga ke memory browser
+const _flowerImgPreload = new Image();
+_flowerImgPreload.src = FLOWER_TRANSITION_CONFIG.flowerSrc;
+ 
+let isFlowerTransitioning = false;
+
+// ------------------------------------------------------------
+// ANTRIAN TRANSISI (fix bug utama: stuck di section-blown)
+// ------------------------------------------------------------
+// Sebelumnya, flowerTransition() punya guard:
+//   if (isFlowerTransitioning) return;
+// Guard ini langsung `return` TANPA pernah memanggil callback-nya kalau ada
+// pemanggilan kedua yang datang saat siklus bunga sebelumnya masih berjalan.
+// Itu persis yang terjadi di holdSuccess(): transisi cake->blown (dipicu di
+// t+500ms) butuh ±5.6 detik total (fase jatuh + hold + scatter + cleanup),
+// sedangkan transisi blown->wish dijadwalkan menyusul di t+3200ms — masih di
+// tengah siklus pertama. Panggilan kedua pun didiamkan begitu saja, sehingga
+// hideSection(blownSection)/showSection(wishSection) TIDAK PERNAH dieksekusi
+// dan halaman terlihat "stuck" di section-blown. Bukan soal argumen (500, 600)
+// yang tidak dipakai — argumen ekstra ke fungsi JS memang diabaikan begitu
+// saja dan tidak menyebabkan error atau hang.
+// Perbaikan: panggilan yang datang saat sibuk di-queue, lalu otomatis
+// dijalankan begitu siklus yang sedang berjalan benar-benar selesai
+// (termasuk fase scatter-nya, bukan cuma sampai callback-nya dipanggil) —
+// supaya urutan section-swap tetap terjamin benar dan tidak ada dua tirai
+// bunga yang saling tumpang tindih di DOM.
+let flowerTransitionQueue = [];
+let flowerCycleTimers = [];
 
 /**
- * Transisi antar scene dengan blackout sinematik:
- *  1. Fade ke hitam (durIn ms) — cubic-bezier tajam
- *  2. Callback (ganti section)
- *  3. Section baru muncul dengan scale 0.98→1 + fade (durOut ms)
+ * FLOWER CURTAIN TRANSITION (GPU Accelerated):
+ * 
+ * Fase 1 (JATUH): Bunga jatuh dari luar batas atas (Y < 0) ke posisi grid
+ *                 (berbasis rasio layar) untuk menutupi layar secara padat
+ * Fase 2 (SCATTER): Bunga terbang menjauh dari TITIK TENGAH layar (radial
+ *                   center-out), rotasi berlawanan arah jarum jam, dengan
+ *                   stagger berbasis jarak — efek "membuka dari tengah"
+ * Fase 3 (CLEANUP): Bersihkan DOM & reset overlay, lalu jalankan transisi
+ *                   berikutnya di antrian (jika ada)
  */
-function sceneTransition(callback, durIn = 300, durOut = 450) {
-  sceneTransitionEl.style.setProperty('--scene-dur', `${durIn}ms`);
-  sceneTransitionEl.classList.add('fade-in-black');
-
-  setTimeout(() => {
-    callback();
-    sceneTransitionEl.style.setProperty('--scene-dur', `${durOut}ms`);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        sceneTransitionEl.classList.remove('fade-in-black');
-      });
-    });
-  }, durIn);
+function flowerTransition(callback) {
+  if (isFlowerTransitioning) {
+    flowerTransitionQueue.push(callback);
+    return;
+  }
+  runFlowerCycle(callback);
 }
 
+function runFlowerCycle(callback) {
+  isFlowerTransitioning = true;
+  // Bersihkan timer sisa dari siklus sebelumnya (safety net, seharusnya sudah
+  // habis sendiri di titik ini karena kita hanya start siklus baru setelah
+  // yang lama selesai — tapi tetap dijaga agar tidak ada timer nyasar).
+  flowerCycleTimers.forEach(id => clearTimeout(id));
+  flowerCycleTimers = [];
+
+  const overlay = document.getElementById('flower-transition-overlay');
+  const stage = document.getElementById('flower-transition-stage');
+
+  if (!overlay || !stage) {
+    console.error("CRITICAL ERROR: Elemen id='flower-transition-overlay' atau id='flower-transition-stage' TIDAK DITEMUKAN di HTML!");
+    try {
+      if (callback) callback();
+    } catch (error) {
+      console.error("FATAL ERROR pada eksekusi navigasi section (callback):", error);
+    }
+    isFlowerTransitioning = false;
+    advanceFlowerQueue();
+    return;
+  }
+
+  stage.innerHTML = '';
+  overlay.classList.add('active');
+
+  const count = FLOWER_TRANSITION_CONFIG.flowerCount;
+  const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+  const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+  const centerX = vw / 2;
+  const centerY = vh / 2;
+  const maxRadius = Math.sqrt(centerX * centerX + centerY * centerY) || 1;
+  const flowers = [];
+
+  // ========== GRID BERBASIS ASPECT RATIO LAYAR ==========
+  // Grid 12-kolom tetap (versi lama) menyisakan baris terakhir nyaris kosong
+  // saat count tidak habis dibagi 12 (75/12 = 6.25 → baris ke-7 cuma terisi
+  // 3 dari 12 sel = ada strip kosong lebar di bagian bawah layar). Di sini
+  // kolom & baris dihitung mengikuti rasio vw/vh, lalu sel yang "kebagian"
+  // bunga diacak urutannya (Fisher–Yates) supaya sel yang TIDAK kebagian
+  // bunga (saat totalCells > count) tersebar merata ke seluruh grid, bukan
+  // menumpuk selalu di baris/kolom terakhir.
+  const aspect = vw / (vh || 1);
+  const cols = Math.max(4, Math.round(Math.sqrt(count * aspect)));
+  const rows = Math.max(1, Math.ceil(count / cols));
+  const totalCells = cols * rows;
+  const cellOrder = Array.from({ length: totalCells }, (_, idx) => idx);
+  for (let i = cellOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cellOrder[i], cellOrder[j]] = [cellOrder[j], cellOrder[i]];
+  }
+  const cellWidth = vw / cols;
+  const cellHeight = vh / rows;
+
+  for (let i = 0; i < count; i++) {
+    const img = document.createElement('img');
+    img.className = 'flower-curtain';
+    img.alt = 'flower';
+
+    const cell = cellOrder[i];
+    const col = cell % cols;
+    const row = Math.floor(cell / cols);
+
+    // ========== FASE 1: JATUH DARI ATAS (DENSE COVERAGE) ==========
+    // Ukuran EKSTREM 30px–180px (bukan 50–100px seperti sebelumnya): bunga
+    // besar menutup celah antar bunga kecil, sehingga tirai benar-benar
+    // 100% padat menutupi layar saat jatuh.
+    const size = 30 + Math.random() * 400;
+    const halfSize = size / 2;
+
+    const endX = col * cellWidth + Math.random() * cellWidth;
+    const endY = row * cellHeight + Math.random() * cellHeight;
+    // Titik jatuh dimulai kira-kira di atas titik pendaratannya sendiri
+    // (bukan dari grid 12-kolom terpisah seperti kode lama) + sedikit
+    // goyangan horizontal acak supaya tetap terlihat natural.
+    const startX = endX + (Math.random() * 120 - 60);
+    const startY = -100 - Math.random() * 200;
+
+    // ========== FASE 2: RADIAL CENTER-OUT DISPERSION ==========
+    // Arah lempar TIDAK LAGI acak (Math.random() * Math.PI * 2 dihapus).
+    // Dihitung dari vektor (titik tengah layar → posisi akhir bunga) pakai
+    // Math.atan2, sehingga setiap bunga terbang tepat menjauh dari pusat.
+    const dx = endX - centerX;
+    const dy = endY - centerY;
+    const scatterAngle = Math.atan2(dy, dx);
+    const radius = Math.sqrt(dx * dx + dy * dy);
+    const scatterDist = Math.max(vw, vh) * 1.3;
+    const scatterX = Math.round(Math.cos(scatterAngle) * scatterDist);
+    const scatterY = Math.round(Math.sin(scatterAngle) * scatterDist);
+
+    // Rotasi DIPAKSA hanya berlawanan arah jarum jam (nilai negatif):
+    // -180deg sampai -360deg.
+    const scatterRot = -(180 + Math.random() * 180);
+
+    // Staggered delay BERBASIS JARAK dari pusat: radius kecil (dekat pusat)
+    // → scatterDelay kecil (terbang duluan). Radius besar (di pinggir) →
+    // scatterDelay besar (terbang belakangan). Hasilnya: layar terlihat
+    // "membuka dari tengah" secara radial, bukan serempak/acak.
+    const scatterDelay = ((radius / maxRadius) * FLOWER_TRANSITION_CONFIG.scatterStaggerMaxMs / 1000).toFixed(3);
+
+    const fallDelay = (i * 0.015).toFixed(3);
+
+    img.style.width = `${size}px`;
+    img.style.height = `${size}px`;
+    img.style.marginLeft = `-${halfSize}px`;
+    img.style.marginTop = `-${halfSize}px`;
+
+    // FASE 1 (Jatuh)
+    img.style.setProperty('--start-x', `${startX}px`);
+    img.style.setProperty('--start-y', `${startY}px`);
+    img.style.setProperty('--end-x', `${endX}px`);
+    img.style.setProperty('--end-y', `${endY}px`);
+
+    // FASE 2 (Scatter radial)
+    img.style.setProperty('--scatter-x', `${scatterX}px`);
+    img.style.setProperty('--scatter-y', `${scatterY}px`);
+    img.style.setProperty('--rot', `${scatterRot}deg`);
+
+    // Delay untuk cascade effect
+    img.style.setProperty('--fall-delay', `${fallDelay}s`);
+    img.style.setProperty('--scatter-delay', `${scatterDelay}s`);
+
+    img.onerror = function() {
+      this.onerror = null;
+      this.src = DEFAULT_FLOWER_SVG;
+    };
+    img.src = FLOWER_TRANSITION_CONFIG.flowerSrc;
+
+    stage.appendChild(img);
+    flowers.push(img);
+  }
+
+  // ========== TRIGGER FASE 1: JATUH ==========
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flowers.forEach(f => f.classList.add('is-falling'));
+    });
+  });
+
+  const maxFallDelayMs = (count - 1) * 15;
+  const totalFallTimeMs = FLOWER_TRANSITION_CONFIG.fallDurationMs + maxFallDelayMs;
+
+  // ========== TRIGGER FASE 2: SCATTER ==========
+  const revealTimer = setTimeout(() => {
+    // PROTEKSI FATAL ERROR: Mencegah sistem freeze apabila terjadi kegagalan di logic navigasi luar
+    try {
+      if (callback) callback();
+    } catch (error) {
+      console.error("FATAL ERROR pada eksekusi navigasi section (callback):", error);
+    }
+
+    flowers.forEach(f => {
+      f.classList.remove('is-falling');
+      f.classList.add('is-scattering');
+    });
+
+    // ========== FASE 3: CLEANUP ==========
+    const totalScatterTimeMs = FLOWER_TRANSITION_CONFIG.scatterDurationMs + FLOWER_TRANSITION_CONFIG.scatterStaggerMaxMs;
+
+    const cleanupTimer = setTimeout(() => {
+      overlay.classList.remove('active');
+      stage.innerHTML = '';
+      isFlowerTransitioning = false;
+      // Kalau ada sceneTransition() lain yang di-queue saat siklus ini
+      // berjalan, jalankan sekarang — inilah yang menggantikan guard lama
+      // yang diam-diam membuang callback kedua.
+      advanceFlowerQueue();
+    }, totalScatterTimeMs + 100);
+    flowerCycleTimers.push(cleanupTimer);
+
+  }, totalFallTimeMs + FLOWER_TRANSITION_CONFIG.holdDurationMs);
+  flowerCycleTimers.push(revealTimer);
+}
+
+function advanceFlowerQueue() {
+  if (flowerTransitionQueue.length === 0) return;
+  const nextCallback = flowerTransitionQueue.shift();
+  runFlowerCycle(nextCallback);
+}
+
+// Wrapper transisi SPA yang dipanggil di seluruh aksi navigasi.
+// Catatan: fungsi ini sengaja hanya menerima 1 parameter (callback). Kalau
+// ada pemanggil yang mengirim argumen tambahan (mis. sceneTransition(fn, 280,
+// 420)), argumen itu diabaikan oleh JS dan TIDAK menyebabkan error — argumen
+// itu sudah dibersihkan dari semua titik pemanggilan di file ini karena
+// memang tidak pernah terpakai (lihat catatan di chat).
+function sceneTransition(callback) {
+  flowerTransition(callback);
+}
+ 
 // ============================================================
 // 1. LOADING SCREEN -> PASSWORD PAGE
 // ============================================================
@@ -61,7 +295,7 @@ window.addEventListener('load', () => {
       showSection(passwordPage);
       const firstPin = document.querySelector('.pin-input');
       if (firstPin) firstPin.focus();
-    }, 400, 450);
+    });
   }, LOADING_DURATION_MS);
 });
 
@@ -72,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pinDots = document.querySelectorAll('.pin-dot');
   const numpadBtns = document.querySelectorAll('.numpad-btn[data-val]');
   const backspaceBtn = document.getElementById('btn-backspace');
+  const passwordFormEl = document.getElementById('password-form');
   
   let currentPin = '';
   const MAX_PIN_LENGTH = 6;
@@ -110,15 +345,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Logika saat form disubmit (tombol "Buka Kado")
+  if (passwordFormEl) {
+    passwordFormEl.addEventListener('submit', (e) => {
+      e.preventDefault();
+      validatePin();
+    });
+  }
+
   // Fungsi Validasi Utama
   function validatePin() {
-    // Beri sedikit jeda agar user melihat titik terakhir terisi sebelum transisi
     setTimeout(() => {
       if (currentPin === CORRECT_PASSWORD) {
         sceneTransition(() => {
           hideSection(passwordPage);
           showSection(mainPage);
-        }, 280, 420);
+        });
       } else {
         triggerPasswordError();
       }
@@ -233,6 +475,7 @@ let igniteTimer      = null;
 let holdWarningTimer = null;
 let holdFailTimer    = null;
 let blownTextTimer   = null;
+let extinguishTimer  = null; // setTimeout 500ms (padam -> blackout -> section-blown) di holdSuccess() — sebelumnya tidak disimpan di variabel apa pun, jadi tidak bisa dibatalkan resetCakeSection() kalau user re-entry ke section cake sebelum timer ini sempat jalan
 let holdRAF          = null;
 let holdStartTime    = null;
 let candleIsLit          = false;
@@ -466,7 +709,7 @@ function holdSuccess() {
   spawnSmokePuffs();
 
   // Setelah asap selesai, mulai blackout penuh lalu pindah scene
-  setTimeout(() => {
+  extinguishTimer = setTimeout(() => {
     candleFlame.classList.remove('visible', 'extinguishing');
     holdTarget.style.setProperty('--cake-scale', '1');
 
@@ -480,7 +723,7 @@ function holdSuccess() {
       cakeSection.style.setProperty('--dim-opacity', '0');
       hideSection(cakeSection);
       showSection(blownSection);
-    }, 500, 600);
+    });
   }, 500);
 
   // Setelah blown text cukup terbaca, fade ke wish section
@@ -490,7 +733,7 @@ function holdSuccess() {
       renderWishes();
       showSection(wishSection);
       wishSection.scrollTop = 0;
-    }, 500, 600);
+    });
   }, 3200); // 500ms extinguish + 600ms fadeToBlack + 700ms fadeIn + 1400ms baca teks
 }
 
@@ -588,52 +831,6 @@ function handleWishClick(selectedTag) {
   if (wishAlreadyPicked) return;
   wishAlreadyPicked = true;
 
-  // 1. Redupkan tag yang tidak dipilih, highlight yang dipilih
-  document.querySelectorAll('.wish-tag').forEach((tag) => {
-    if (tag === selectedTag) {
-      tag.classList.add('selected-float');
-    } else {
-      tag.classList.add('dimmed');
-      tag.style.pointerEvents = 'none';
-    }
-  });
-
-  // 2. Munculkan popup & jalankan efek kelopak
-  spawnPetals(20);
-  if (wishPopup) wishPopup.classList.remove('hidden-section');
-
-  // 3. Delayed Auto-Transition menggunakan sceneTransition lu sendiri
-  setTimeout(() => {
-    // Fungsi sceneTransition sudah mengatur fade-to-black
-    sceneTransition(() => {
-      // Hentikan efek hujan kelopak di background wish
-      if (stopWishAmbient) { stopWishAmbient(); stopWishAmbient = null; }
-      
-      // Sembunyikan section wish
-      hideSection(wishSection);
-      if (wishPopup) wishPopup.classList.add('hidden-section');
-      
-      // Siapkan dan munculkan gallery
-      const gallerySection = document.getElementById('section-gallery');
-      resetGallery();
-      showSection(gallerySection);
-      
-      // Trigger rendering gallery setelah transisi layar hitam
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          buildGallery();
-          if (stopGalleryAmbient) stopGalleryAmbient();
-          stopGalleryAmbient = startAmbientPetals(gallerySection, 6);
-        });
-      });
-    }, 400, 500); // 400ms durasi fade in layar hitam, 500ms fade out ke gallery
-  }, 3200); // Jeda 3.2 detik agar user sempat membaca teks konfirmasi
-}
-
-function handleWishClick(selectedTag) {
-  if (wishAlreadyPicked) return;
-  wishAlreadyPicked = true;
-
   // 1. Isolasi fokus ke tag yang dipilih
   document.querySelectorAll('.wish-tag').forEach((tag) => {
     if (tag === selectedTag) {
@@ -645,10 +842,10 @@ function handleWishClick(selectedTag) {
   });
 
   // 2. Munculkan popup konfirmasi & jalankan efek visual
-  spawnPetals(20);
+  spawnPetals(24);
   if (wishPopup) wishPopup.classList.remove('hidden-section');
 
-  // 3. Transisi otomatis ke Gallery setelah jeda membaca (3 detik)
+  // 3. Transisi otomatis ke Gallery setelah jeda membaca (~3 detik)
   setTimeout(() => {
     sceneTransition(() => {
       // Hentikan efek background dari Wish Section
@@ -666,7 +863,7 @@ function handleWishClick(selectedTag) {
       resetGallery();
       showSection(gallerySection);
       
-      // Render layout galeri menggunakan double rAF untuk memastikan DOM siap
+      // Render layout galeri
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           buildGallery();
@@ -674,7 +871,7 @@ function handleWishClick(selectedTag) {
           stopGalleryAmbient = startAmbientPetals(gallerySection, 6);
         });
       });
-    }, 400, 500); // 400ms durasi fade-in layar hitam, 500ms durasi fade-out ke galeri
+    });
   }, 3000); 
 }
 
@@ -763,6 +960,7 @@ function resetCakeSection() {
   clearTimeout(blownTextTimer);
   clearTimeout(holdWarningTimer);
   clearTimeout(holdFailTimer);
+  clearTimeout(extinguishTimer);
   cancelAnimationFrame(holdRAF);
   stopSparkEffect();
 
@@ -803,7 +1001,7 @@ backToMenuBtn.addEventListener('click', () => {
     resetCakeSection();
     hideSection(cakeSection);
     showSection(mainPage);
-  }, 280, 420);
+  });
 });
 
 wishBackBtn.addEventListener('click', () => {
@@ -811,7 +1009,7 @@ wishBackBtn.addEventListener('click', () => {
     if (stopWishAmbient) { stopWishAmbient(); stopWishAmbient = null; }
     hideSection(wishSection);
     showSection(mainPage);
-  }, 280, 420);
+  });
 });
 
 // ============================================================
@@ -1042,7 +1240,7 @@ function openGallery() {
         stopGalleryAmbient = startAmbientPetals(gallerySection, 6);
       });
     });
-  }, 280, 420);
+  });
 }
 
 galleryBackBtn.addEventListener('click', () => {
@@ -1050,7 +1248,7 @@ galleryBackBtn.addEventListener('click', () => {
     resetGallery();
     hideSection(gallerySection);
     showSection(mainPage);
-  }, 280, 420);
+  });
 });
 
 galleryLetterBtn.addEventListener('click', () => {
@@ -1058,7 +1256,7 @@ galleryLetterBtn.addEventListener('click', () => {
     resetGallery();
     hideSection(gallerySection);
     openMessageSection();
-  }, 280, 420);
+  });
 });
 
 function openMessageSection() {
@@ -1076,7 +1274,6 @@ function openMessageSection() {
   // Closing card + buttons stagger after letter finishes
   const closingCard = msgSection.querySelector('.closing-card');
   const openBtn = document.getElementById('open-flower-btn');
-  const restartBtnEl = document.getElementById('restart-btn');
   const letterDelay = 200 + lines.length * 100 + 200;
 
   if (closingCard) {
@@ -1086,10 +1283,6 @@ function openMessageSection() {
   if (openBtn) {
     openBtn.classList.remove('btn-revealed');
     setTimeout(() => openBtn.classList.add('btn-revealed'), letterDelay + 180);
-  }
-  if (restartBtnEl) {
-    restartBtnEl.classList.remove('btn-revealed');
-    setTimeout(() => restartBtnEl.classList.add('btn-revealed'), letterDelay + 320);
   }
 
   // Start ambient petals
@@ -1109,14 +1302,14 @@ document.querySelectorAll('.menu-icon').forEach((btn) => {
         // Start ambient petals on cake stage
         stopCakeAmbient = startAmbientPetals(cakeSection, 4);
         startIgniteSequence();
-      }, 280, 420);
+      });
     } else if (menu === 'galeri') {
       openGallery();
     } else if (menu === 'pesan') {
       sceneTransition(() => {
         hideSection(mainPage);
         openMessageSection();
-      }, 280, 420);
+      });
     } else {
       console.log(`Menu "${menu}" diklik`);
     }
@@ -1130,13 +1323,11 @@ document.querySelectorAll('.menu-icon').forEach((btn) => {
 const msgSection      = document.getElementById('section-message');
 const msgBackBtn      = document.getElementById('msg-back-btn');
 const openFlowerBtn   = document.getElementById('open-flower-btn');
-const restartBtn      = document.getElementById('restart-btn');
 
 // ── Modal buket bunga ────────────────────────────────────────
 const flowerModal        = document.getElementById('flower-modal');
 const flowerModalBackdrop= document.getElementById('flower-modal-backdrop');
 const flowerBackBtn      = document.getElementById('flower-back-btn');
-const flowerRestartBtn   = document.getElementById('flower-restart-btn');
 const flowerBouquetWrap  = document.querySelector('.flower-bouquet-wrap');
 
 function openFlowerModal() {
@@ -1163,8 +1354,6 @@ flowerModalBackdrop.addEventListener('click', closeFlowerModal);
 flowerBackBtn.addEventListener('click', closeFlowerModal);
 
 // Ulangi dari awal — reload halaman
-restartBtn.addEventListener('click', () => location.reload());
-flowerRestartBtn.addEventListener('click', () => location.reload());
 
 // Tap buket → efek kecil (goyangan lebih kuat sementara)
 if (flowerBouquetWrap) {
@@ -1184,7 +1373,7 @@ msgBackBtn.addEventListener('click', () => {
     if (stopMessageAmbient) { stopMessageAmbient(); stopMessageAmbient = null; }
     hideSection(msgSection);
     showSection(mainPage);
-  }, 280, 420);
+  });
 });
 
 function triggerMessageSectionSequence() {
@@ -1366,17 +1555,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setReelAnimation(false);
   });
 
-  // Klik Tracklist untuk Ganti Lagu (Atribut data-src & data-title)
-// --- AWAL MODIFIKASI TOAST MODAL ---
+  // --- LOGIKA TOAST MODAL ---
   const nextActionModal = document.getElementById('next-action-modal');
-  const nextActionCard = document.getElementById('next-action-card');
   const btnLanjutKue = document.getElementById('btn-lanjut-kue');
   const btnPilihLagu = document.getElementById('btn-pilih-lagu');
   const mainMenuContainer = document.querySelector('#main-page > div');
+  let currentSelectedMenu = 'kalender';
 
   function showNextActionModal() {
     nextActionModal.classList.remove('hidden-section');
-    mainMenuContainer.style.transition = 'filter 0.4s ease, filter 0.4s ease';
+    mainMenuContainer.style.transition = 'filter 0.4s ease';
     
     requestAnimationFrame(() => {
       nextActionModal.classList.add('modal-enter-active');
@@ -1396,23 +1584,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Tutup modal jika user memilih "Pilih Lagu Lain"
   btnPilihLagu.addEventListener('click', hideNextActionModal);
 
-  // Transisi ke Cake Section jika user memilih "Lanjut Tiup Lilin"
+  // Transisi ke Section yang sesuai saat user klik Lanjut
   btnLanjutKue.addEventListener('click', () => {
     hideNextActionModal();
-    sceneTransition(() => {
-      hideSection(mainPage);
-      resetCakeSection();
-      showSection(cakeSection);
-      if (stopCakeAmbient) stopCakeAmbient();
-      stopCakeAmbient = startAmbientPetals(cakeSection, 4);
-      startIgniteSequence();
-    }, 280, 420);
+    if (currentSelectedMenu === 'galeri') {
+      openGallery();
+    } else if (currentSelectedMenu === 'pesan') {
+      sceneTransition(() => {
+        hideSection(mainPage);
+        openMessageSection();
+      });
+    } else {
+      // Default: Kalender / Kue & Lilin
+      sceneTransition(() => {
+        hideSection(mainPage);
+        resetCakeSection();
+        showSection(cakeSection);
+        if (stopCakeAmbient) stopCakeAmbient();
+        stopCakeAmbient = startAmbientPetals(cakeSection, 4);
+        startIgniteSequence();
+      });
+    }
   });
-  // --- AKHIR LOGIKA MODAL ---
 
-  // Ganti blok event listener trackBtns sebelumnya dengan yang ini
+  // Track buttons event listener
   trackBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+      currentSelectedMenu = btn.getAttribute('data-menu') || 'kalender';
       const newSrc = btn.getAttribute('data-src');
       const newTitle = btn.getAttribute('data-title');
 
@@ -1425,11 +1623,11 @@ document.addEventListener('DOMContentLoaded', () => {
           iconPause.classList.remove('hidden');
           setReelAnimation(true);
           
-          // Munculkan toast setelah delay 600ms (biar user sadar lagunya terganti)
+          // Munculkan toast setelah delay 600ms
           setTimeout(showNextActionModal, 600);
         }).catch(err => console.error("Audio src error:", err));
       } else {
-        // Jika lagu yang sama diklik lagi, play dan langsung munculkan modal
+        // Jika lagu yang sama diklik lagi
         if (audio.paused) togglePlay();
         showNextActionModal();
       }
